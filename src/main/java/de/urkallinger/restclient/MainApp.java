@@ -88,6 +88,10 @@ public class MainApp extends Application {
 					event.consume();
 				}
 				break;
+			case H:
+				if(event.isAltDown()) {
+					configHolder.controller.addHeader();
+				}
 			default: break;
 			}
 		});

@@ -23,6 +23,11 @@ public class CommunicationHandler {
 		
 		RequestBody body = RequestBody.create(mediaType, data.getPayload());
 		Builder requestBilder = new Request.Builder().url(url);
+		
+		data.getHeaders().forEach(header -> {
+			requestBilder.addHeader(header.getName(), header.getValue());
+		});
+		
 		Request request;
 		switch(data.getHttpMethod()) {
 		case "POST":

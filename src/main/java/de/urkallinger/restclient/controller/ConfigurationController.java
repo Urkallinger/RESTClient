@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.urkallinger.restclient.data.DataManager;
+import de.urkallinger.restclient.data.Header;
 import de.urkallinger.restclient.data.RestData;
 import de.urkallinger.restclient.data.SaveData;
 import de.urkallinger.restclient.utils.DragResizer;
@@ -19,10 +20,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 
 public class ConfigurationController {
 
@@ -38,6 +42,8 @@ public class ConfigurationController {
 	private ComboBox<String> cbHttpMethod = new ComboBox<>();
 	@FXML
 	private TextArea taPayload = new TextArea();
+	@FXML
+	private GridPane headerGrid = new GridPane();
 	
 	@FXML
 	private void initialize() {
@@ -81,6 +87,34 @@ public class ConfigurationController {
 		txtPath.textProperty().bindBidirectional(data.getPathProperty());
 		taPayload.textProperty().bindBidirectional(data.getPayloadProperty());
 		cbHttpMethod.valueProperty().bindBidirectional(data.getHttpMethodProperty());
+		data.getHeaders().forEach(h -> addHeader(h));
+	}
+	
+	public void addHeader() {
+		addHeader(null);
+	}
+	
+	public void addHeader(Header header) {
+		int rowCount = headerGrid.getChildren().stream().mapToInt(child -> GridPane.getRowIndex(child)).max().orElse(0);
+		if(header == null) {
+			header = new Header();
+			data.addHeader(header);
+		}
+		
+		Label label = new Label("Header");
+		label.setFont(new Font(14));
+		
+		TextField txtName = new TextField();
+		txtName.setFont(new Font(14));
+		txtName.setPromptText("name");
+		txtName.textProperty().bindBidirectional(header.getNameProperty());
+		
+		TextField txtValue = new TextField();
+		txtValue.setFont(new Font(14));
+		txtValue.setPromptText("value");
+		txtValue.textProperty().bindBidirectional(header.getValueProperty());
+		
+		headerGrid.addRow(rowCount+1, label, txtName, txtValue);
 	}
 	
 	public void save(boolean saveAsNew) {

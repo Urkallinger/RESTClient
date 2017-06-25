@@ -1,5 +1,8 @@
 package de.urkallinger.restclient.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -24,7 +27,7 @@ public class RestData {
 	private StringProperty path;
 	private StringProperty httpMethod;
 	private StringProperty payload;
-	
+	private List<Header> headers;
 
 	public RestData() {
 		this.name = new SimpleStringProperty("");
@@ -32,6 +35,7 @@ public class RestData {
 		this.path = new SimpleStringProperty("");
 		this.httpMethod = new SimpleStringProperty("");
 		this.payload = new SimpleStringProperty("");
+		this.headers = new ArrayList<>();
 	}
 
 
@@ -93,5 +97,17 @@ public class RestData {
 
 	public void setPayload(String payload) {
 		this.payload.set(payload);
+	}
+	
+	public List<Header> getHeaders() {
+		return headers;
+	}
+	
+	public void setHeaders(List<Header> headers) {
+		this.headers = headers;
+	}
+	
+	public void addHeader(Header header) {
+		headers.add(header);
 	}
 }
