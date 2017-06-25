@@ -1,14 +1,19 @@
 package de.urkallinger.restclient.controller;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.urkallinger.restclient.data.DataManager;
 import de.urkallinger.restclient.data.RestData;
 import de.urkallinger.restclient.data.SaveData;
+import de.urkallinger.restclient.utils.DragResizer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,6 +43,7 @@ public class ConfigurationController {
 	private void initialize() {
 		
 		bindRestData(data);
+		DragResizer.makeResizable(taPayload);
 		
 		taPayload.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			switch(event.getCode()) {
@@ -94,6 +100,7 @@ public class ConfigurationController {
 	}
 	
 	public void load() {
+		// TODO: Eingabedialog nur temporär. Zukünftige schöner Dialog mit TableView
 		Optional<String> result = showConfigNameDialog();
 		if(result.isPresent()) {
 			RestData data = DataManager.loadData().getRestData(result.get());
@@ -101,5 +108,22 @@ public class ConfigurationController {
 				bindRestData(data);
 			}
 		}
+	}
+	
+	public void formatPayload() {
+		if(data.getPayload() == null) {
+			return;
+		}
+		
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			Object json = mapper.readValue(data.getPayload(), Object.class);
+			data.setPayload(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json));
+		} catch (JsonProcessingException e) {
+			LOGGER.error(e.getMessage());
+		} catch (IOException e) {
+			LOGGER.error(e.getMessage());
+		}
+
 	}
 }

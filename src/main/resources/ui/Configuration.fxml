@@ -31,32 +31,32 @@
 		<!-- ZEILE 1 -->
 		<Label text="Host" GridPane.columnIndex="0">
 			<font>
-				<Font size="16" />
+				<Font size="14" />
 			</font>
 		</Label>
 		<TextField fx:id="txtHost" GridPane.columnIndex="1">
 			<font>
-				<Font size="16" />
+				<Font size="14" />
 			</font>
 		</TextField>
 
 		<!-- ZEILE 2 -->
 		<Label text="Path" GridPane.rowIndex="1">
 			<font>
-				<Font size="16" />
+				<Font size="14" />
 			</font>
 		</Label>
 		<TextField fx:id="txtPath" GridPane.columnIndex="1"
 			GridPane.rowIndex="1">
 			<font>
-				<Font size="16" />
+				<Font size="14" />
 			</font>
 		</TextField>
 
 		<!-- ZEILE 3 -->
 		<Label text="HTTP Method" GridPane.rowIndex="2">
 			<font>
-				<Font size="16" />
+				<Font size="14" />
 			</font>
 		</Label>
 		<AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="2">
@@ -82,7 +82,7 @@
 		<!-- ZEILE 4 -->
 		<Label text="Payload" GridPane.rowIndex="3">
 			<font>
-				<Font size="16" />
+				<Font size="14" />
 			</font>
 		</Label>
 		<TextArea fx:id="taPayload" prefHeight="80.0"

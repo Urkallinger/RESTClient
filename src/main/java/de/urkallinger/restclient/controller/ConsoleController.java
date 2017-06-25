@@ -22,7 +22,7 @@ public class ConsoleController {
 				if (!isEmpty()) {
 					setText(item.getText());
 					setTextFill(item.getColor());
-					setFont(new Font("Consolas", 16));
+					setFont(new Font("Consolas", 14));
 				} else {
 					setText(null);
 				}

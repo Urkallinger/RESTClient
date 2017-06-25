@@ -50,7 +50,7 @@ public class MainApp extends Application {
 		stage.setScene(scene);
 		stage.show();
 		
-		scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			switch (event.getCode()) {
 			case S:
 				if(event.isControlDown()) {
@@ -66,9 +66,12 @@ public class MainApp extends Application {
 					console.controller.clear();
 				}
 				break;
+			case F:
+				if(event.isControlDown()) {
+					config.controller.formatPayload();
+				}
 			default: break;
 			}
-		
 		});
 	}
 
