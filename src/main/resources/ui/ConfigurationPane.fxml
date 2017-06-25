@@ -85,10 +85,10 @@
 				<Font size="14" />
 			</font>
 		</Label>
-		<TextArea fx:id="taPayload" prefHeight="80.0"
+		<TextArea fx:id="taPayload" prefHeight="95.0" maxHeight="200.0"
 			GridPane.columnIndex="1" GridPane.rowIndex="3">
 			<font>
-				<Font name="Consolas" size="16.0" />
+				<Font name="Consolas" size="14.0" />
 			</font>
 		</TextArea>
 

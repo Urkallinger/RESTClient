@@ -27,11 +27,11 @@ public class RestData {
 	
 
 	public RestData() {
-		this.name = new SimpleStringProperty();
-		this.host = new SimpleStringProperty();
-		this.path = new SimpleStringProperty();
-		this.httpMethod = new SimpleStringProperty();
-		this.payload = new SimpleStringProperty();
+		this.name = new SimpleStringProperty("");
+		this.host = new SimpleStringProperty("");
+		this.path = new SimpleStringProperty("");
+		this.httpMethod = new SimpleStringProperty("");
+		this.payload = new SimpleStringProperty("");
 	}
 
 

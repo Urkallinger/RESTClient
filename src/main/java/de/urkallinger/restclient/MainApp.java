@@ -5,10 +5,13 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.urkallinger.restclient.communication.CommunicationHandler;
 import de.urkallinger.restclient.controller.ConfigurationController;
 import de.urkallinger.restclient.controller.ConsoleController;
+import de.urkallinger.restclient.controller.ResponseController;
 import de.urkallinger.restclient.data.DataManager;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -16,6 +19,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MainApp extends Application {
 
@@ -24,8 +30,9 @@ public class MainApp extends Application {
 	private Stage stage;
 	private Scene scene;
 
-	private ConsoleHolder console;
-	private ConfigurationHolder config;
+	private ConsoleHolder consoleHolder;
+	private ConfigurationHolder configHolder;
+	private ResponseHolder responseHolder;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -40,11 +47,13 @@ public class MainApp extends Application {
 
 
 		BorderPane rootLayout = initRootLayout();
-		config = initConfiguration();
-		console = initConsole();
+		configHolder = initConfiguration();
+		consoleHolder = initConsole();
+		responseHolder = initResponse();
 		
-		rootLayout.setTop(config.pane);
-		rootLayout.setBottom(console.pane);
+		rootLayout.setTop(configHolder.pane);
+		rootLayout.setBottom(consoleHolder.pane);
+		rootLayout.setCenter(responseHolder.pane);
 		
 		scene = new Scene(rootLayout);
 		stage.setScene(scene);
@@ -54,25 +63,53 @@ public class MainApp extends Application {
 			switch (event.getCode()) {
 			case S:
 				if(event.isControlDown()) {
-					config.controller.save(event.isShiftDown());
+					configHolder.controller.save(event.isShiftDown());
 				}
 				break;
 			case O:
 				if(event.isControlDown()) {
-					config.controller.load();
+					configHolder.controller.load();
 				}
+				break;
 			case C:
 				if(event.isAltDown()) {
-					console.controller.clear();
+					consoleHolder.controller.clear();
+					event.consume();
 				}
 				break;
 			case F:
 				if(event.isControlDown()) {
-					config.controller.formatPayload();
+					configHolder.controller.formatPayload();
 				}
+				break;
+			case ENTER:
+				if(event.isAltDown()) {
+					sendRequest();
+					event.consume();
+				}
+				break;
 			default: break;
 			}
 		});
+	}
+	
+	private void sendRequest() {
+		Callback c = new Callback() {
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				 String content = response.body().string();
+				Platform.runLater(() -> responseHolder.controller.setText(content)); 
+				LOGGER.info(String.format("response: %d - %s", response.code(), response.message()));
+			}
+
+			@Override
+			public void onFailure(Call call, IOException e) {
+				LOGGER.error(e.getMessage());
+			}
+		};
+		
+		CommunicationHandler.sendRequest(configHolder.controller.getRestData(), c);
 	}
 
 	private BorderPane initRootLayout() throws IOException {
@@ -85,7 +122,7 @@ public class MainApp extends Application {
 	private ConfigurationHolder initConfiguration() throws IOException {
 		FXMLLoader loader = new FXMLLoader();
 
-		loader.setLocation(getClass().getResource("/ui/Configuration.fxml"));
+		loader.setLocation(getClass().getResource("/ui/ConfigurationPane.fxml"));
 		
 		ConfigurationHolder holder = new ConfigurationHolder();
 		holder.pane = loader.load();
@@ -97,9 +134,21 @@ public class MainApp extends Application {
 	private ConsoleHolder initConsole() throws IOException {
 		FXMLLoader loader = new FXMLLoader();
 
-		loader.setLocation(getClass().getResource("/ui/Console.fxml"));
+		loader.setLocation(getClass().getResource("/ui/ConsolePane.fxml"));
 		
 		ConsoleHolder holder = new ConsoleHolder();
+		holder.pane = loader.load();
+		holder.controller = loader.getController();
+		
+		return holder;
+	}
+	
+	private ResponseHolder initResponse() throws IOException {
+		FXMLLoader loader = new FXMLLoader();
+
+		loader.setLocation(getClass().getResource("/ui/ResponsePane.fxml"));
+		
+		ResponseHolder holder = new ResponseHolder();
 		holder.pane = loader.load();
 		holder.controller = loader.getController();
 		
@@ -118,5 +167,10 @@ public class MainApp extends Application {
 	private static class ConfigurationHolder {
 		public Pane pane;
 		public ConfigurationController controller;
+	}
+	
+	private static class ResponseHolder {
+		public Pane pane;
+		public ResponseController controller;
 	}
 }

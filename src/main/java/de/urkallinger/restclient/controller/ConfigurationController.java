@@ -96,7 +96,7 @@ public class ConfigurationController {
 		SaveData saveData = DataManager.loadData();
 		saveData.addRestData(data.getName(), data);
 		DataManager.saveData(saveData);
-		LOGGER.info("Configuration successfully saved.");
+		LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
 	}
 	
 	public void load() {
@@ -124,6 +124,9 @@ public class ConfigurationController {
 		} catch (IOException e) {
 			LOGGER.error(e.getMessage());
 		}
-
+	}
+	
+	public RestData getRestData() {
+		return data;
 	}
 }
