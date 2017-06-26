@@ -1,5 +1,7 @@
 package de.urkallinger.restclient.communication;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +17,15 @@ import okhttp3.RequestBody;
 public class CommunicationHandler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CommunicationHandler.class);
-	private static final OkHttpClient CLIENT = new OkHttpClient();
 
 	public static void sendRequest(RestData data, Callback callback) {
+		OkHttpClient client = new OkHttpClient()
+				.newBuilder()
+				.connectTimeout(2, TimeUnit.SECONDS)
+				.readTimeout(2, TimeUnit.SECONDS)
+				.writeTimeout(2, TimeUnit.SECONDS)
+				.build();
+				
 		MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
 		String url = data.getHost() + data.getPath();
 		
@@ -48,7 +56,7 @@ public class CommunicationHandler {
 		}
 		
 		
-		Call call = CLIENT.newCall(request);
+		Call call = client.newCall(request);
 		call.enqueue(callback);
 	}
 }

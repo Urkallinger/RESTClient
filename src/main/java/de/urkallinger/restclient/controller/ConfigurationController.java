@@ -87,7 +87,13 @@ public class ConfigurationController {
 		txtPath.textProperty().bindBidirectional(data.getPathProperty());
 		taPayload.textProperty().bindBidirectional(data.getPayloadProperty());
 		cbHttpMethod.valueProperty().bindBidirectional(data.getHttpMethodProperty());
+		
+		clearHeaderGrid();
 		data.getHeaders().forEach(h -> addHeader(h));
+	}
+	
+	private void clearHeaderGrid() {
+		headerGrid.getChildren().clear();
 	}
 	
 	public void addHeader() {

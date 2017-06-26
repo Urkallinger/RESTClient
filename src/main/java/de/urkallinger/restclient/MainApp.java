@@ -10,6 +10,7 @@ import de.urkallinger.restclient.controller.ConfigurationController;
 import de.urkallinger.restclient.controller.ConsoleController;
 import de.urkallinger.restclient.controller.ResponseController;
 import de.urkallinger.restclient.data.DataManager;
+import de.urkallinger.restclient.dialogs.RestDataDialog;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -68,6 +69,10 @@ public class MainApp extends Application {
 				break;
 			case O:
 				if(event.isControlDown()) {
+					RestDataDialog dialog = new RestDataDialog();
+					dialog.setParentStage(stage);
+					dialog.show();
+					responseHolder.controller.clearContent();
 					configHolder.controller.load();
 				}
 				break;
@@ -105,6 +110,7 @@ public class MainApp extends Application {
 				 String content = response.body().string();
 				Platform.runLater(() -> responseHolder.controller.setText(content)); 
 				LOGGER.info(String.format("response: %d - %s", response.code(), response.message()));
+				response.body().close();
 			}
 
 			@Override
