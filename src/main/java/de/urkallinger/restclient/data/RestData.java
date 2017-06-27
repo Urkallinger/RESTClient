@@ -22,6 +22,7 @@ public class RestData {
 	@XmlTransient
 	private final static Logger LOGGER = LoggerFactory.getLogger(RestData.class);
 	
+	private StringProperty project;
 	private StringProperty name;
 	private StringProperty host;
 	private StringProperty path;
@@ -30,6 +31,7 @@ public class RestData {
 	private List<Header> headers;
 
 	public RestData() {
+		this.project = new SimpleStringProperty("");
 		this.name = new SimpleStringProperty("");
 		this.host = new SimpleStringProperty("");
 		this.path = new SimpleStringProperty("");
@@ -38,6 +40,17 @@ public class RestData {
 		this.headers = new ArrayList<>();
 	}
 
+	public StringProperty getProjectProperty() {
+		return project;
+	}
+	
+	public String getProject() {
+		return project.get();
+	}
+
+	public void setProject(String project) {
+		this.project.set(project);
+	}
 
 	public StringProperty getNameProperty() {
 		return name;

@@ -101,6 +101,7 @@
 					prefWidth="120.0" />
 				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
 				<ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
 			</columnConstraints>
 		</GridPane>
 	</children>

@@ -24,4 +24,8 @@ public class SaveData {
 	public void addRestData(String name, RestData data) {
 		restData.put(name, data);
 	}
+	
+	public Map<String, RestData> getRestDataMap() {
+		return restData;
+	}
 }

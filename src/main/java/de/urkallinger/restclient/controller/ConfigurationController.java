@@ -1,7 +1,9 @@
 package de.urkallinger.restclient.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,16 +16,18 @@ import de.urkallinger.restclient.data.DataManager;
 import de.urkallinger.restclient.data.Header;
 import de.urkallinger.restclient.data.RestData;
 import de.urkallinger.restclient.data.SaveData;
+import de.urkallinger.restclient.dialogs.SaveDialog;
+import de.urkallinger.restclient.model.SaveDialogData;
 import de.urkallinger.restclient.utils.DragResizer;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
@@ -65,22 +69,6 @@ public class ConfigurationController {
 		});
 	}
 	
-	private Optional<String> showConfigNameDialog() {
-		TextInputDialog dialog = new TextInputDialog();
-		dialog.setTitle("Configuration name");
-		dialog.setHeaderText("Please insert the name for the configuration.");
-		
-		final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-		okButton.addEventFilter(ActionEvent.ACTION, ae -> {
-		    if (dialog.getEditor().getText().isEmpty()) {
-		    	LOGGER.error("Name can not be empty!");
-		        ae.consume(); //not valid
-		    }
-		});
-		
-		return dialog.showAndWait();
-	}
-	
 	private void bindRestData(RestData data) {
 		this.data = data;
 		txtHost.textProperty().bindBidirectional(data.getHostProperty());
@@ -110,27 +98,39 @@ public class ConfigurationController {
 		Label label = new Label("Header");
 		label.setFont(new Font(14));
 		
-		TextField txtName = new TextField();
+		final TextField txtName = new TextField();
 		txtName.setFont(new Font(14));
 		txtName.setPromptText("name");
 		txtName.textProperty().bindBidirectional(header.getNameProperty());
 		
-		TextField txtValue = new TextField();
+		final TextField txtValue = new TextField();
 		txtValue.setFont(new Font(14));
 		txtValue.setPromptText("value");
 		txtValue.textProperty().bindBidirectional(header.getValueProperty());
 		
-		headerGrid.addRow(rowCount+1, label, txtName, txtValue);
+		Button btnDelete = new Button();
+		btnDelete.setOnAction(event -> {
+			Button btn = (Button) event.getTarget();
+			final int row = GridPane.getRowIndex(btn);
+			List<Node> toDelete = headerGrid.getChildren().stream()
+					.filter(child -> GridPane.getRowIndex(child) == row)
+					.collect(Collectors.toList());
+			data.getHeaders().remove(row - 1);
+			headerGrid.getChildren().removeAll(toDelete);
+		});
+		
+		btnDelete.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/delete.png"))));
+		
+		headerGrid.addRow(rowCount+1, label, txtName, txtValue, btnDelete);
 	}
 	
 	public void save(boolean saveAsNew) {
 		if(saveAsNew || data.getName() == null || data.getName().isEmpty()) {
-			Optional<String> result = showConfigNameDialog();
-			if(result.isPresent()) {
-				data.setName(result.get());
-			} else {
-				return;
-			}
+			Optional<SaveDialogData> result = new SaveDialog().showDialog();
+			result.ifPresent(sdData -> {
+				data.setProject(sdData.getProject());
+				data.setName(sdData.getName());
+			});
 		}
 		
 		SaveData saveData = DataManager.loadData();
@@ -139,15 +139,8 @@ public class ConfigurationController {
 		LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
 	}
 	
-	public void load() {
-		// TODO: Eingabedialog nur temporär. Zukünftige schöner Dialog mit TableView
-		Optional<String> result = showConfigNameDialog();
-		if(result.isPresent()) {
-			RestData data = DataManager.loadData().getRestData(result.get());
-			if(data != null) {
-				bindRestData(data);
-			}
-		}
+	public void load(RestData data) {
+		bindRestData(data);
 	}
 	
 	public void formatPayload() {

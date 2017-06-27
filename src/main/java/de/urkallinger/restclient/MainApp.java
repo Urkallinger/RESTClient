@@ -71,9 +71,11 @@ public class MainApp extends Application {
 				if(event.isControlDown()) {
 					RestDataDialog dialog = new RestDataDialog();
 					dialog.setParentStage(stage);
-					dialog.show();
-					responseHolder.controller.clearContent();
-					configHolder.controller.load();
+					dialog.showAndWait();
+					dialog.getResult().ifPresent(data -> {
+						responseHolder.controller.clearContent();
+						configHolder.controller.load(data);
+					});
 				}
 				break;
 			case C:
