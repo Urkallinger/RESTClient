@@ -82,7 +82,8 @@ public class RestDataDialogController {
 					data.getRestDataMap().remove(entry.getName());
 					DataManager.saveData(data);
 					
-					// TreeTableEntry löschen -> aber erstmal im Baum finden :-/
+					 TreeItem<RestDataEntry> treeItem = treeTable.getSelectionModel().getSelectedItem();
+					 treeItem.getParent().getChildren().remove(treeItem);
 				}
 				break;
 			default:

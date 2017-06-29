@@ -21,7 +21,11 @@ import de.urkallinger.restclient.model.SaveDialogData;
 import de.urkallinger.restclient.utils.DragResizer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -84,6 +88,25 @@ public class ConfigurationController {
 		headerGrid.getChildren().clear();
 	}
 	
+	private boolean showOverrideDialog(String name) {
+		ButtonType yes = new ButtonType("yes", ButtonBar.ButtonData.OK_DONE);
+		ButtonType no = new ButtonType("no", ButtonBar.ButtonData.CANCEL_CLOSE);
+		
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Override saved configuration");
+		alert.setHeaderText(String.format("A configuration with the name \"%s\" already exists.", name));
+		alert.setContentText("Do you want do override it?");
+		alert.getButtonTypes().clear();
+		alert.getButtonTypes().addAll(yes, no);
+		
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == yes){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public void addHeader() {
 		addHeader(null);
 	}
@@ -127,20 +150,37 @@ public class ConfigurationController {
 	public void save(boolean saveAsNew) {
 		if(saveAsNew || data.getName() == null || data.getName().isEmpty()) {
 			Optional<SaveDialogData> result = new SaveDialog().showDialog();
-			result.ifPresent(sdData -> {
+			if(result.isPresent()) {
+				SaveDialogData sdData = result.get();
 				data.setProject(sdData.getProject());
 				data.setName(sdData.getName());
-			});
+			} else {
+				// Cancel clicked
+				return;
+			}
 		}
 		
+		boolean override = true;
+		
 		SaveData saveData = DataManager.loadData();
-		saveData.addRestData(data.getName(), data);
-		DataManager.saveData(saveData);
-		LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
+		if(saveData.getRestDataMap().containsKey(data.getName())) {
+			override = showOverrideDialog(data.getName());
+		}
+		
+		if(override) {
+			saveData.addRestData(data.getName(), data);
+			DataManager.saveData(saveData);
+			LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
+		}
 	}
 	
 	public void load(RestData data) {
-		bindRestData(data);
+		try {
+			bindRestData(data);
+			LOGGER.info(String.format("Configuration \"%s\" successfully loaded.", data.getName()));
+		} catch (Exception e) {
+			LOGGER.info(String.format("Failed to load configuration \"%s\".", data.getName()));
+		}
 	}
 	
 	public void formatPayload() {
