@@ -7,7 +7,6 @@ import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.text.Font;
 
 public class ConsoleController {
 	@FXML
@@ -22,7 +21,6 @@ public class ConsoleController {
 				if (!isEmpty()) {
 					setText(item.getText());
 					setTextFill(item.getColor());
-					setFont(new Font("Consolas", 14));
 				} else {
 					setText(null);
 				}

@@ -27,9 +27,9 @@
 			prefWidth="200.0" BorderPane.alignment="CENTER">
 			<columns>
 				<TreeTableColumn fx:id="colProject"
-					style="-fx-font-size: 14px; -fx-font-weight: normal;" text="Project" />
+					style="-fx-font-weight: normal;" text="Project" />
 				<TreeTableColumn fx:id="colName"
-					style="-fx-font-size: 14px; -fx-font-weight: normal;" text="Configuration name" />
+					style="-fx-font-weight: normal;" text="Configuration name" />
 			</columns>
 			<columnResizePolicy>
 				<TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -34,7 +34,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Font;
 
 public class ConfigurationController {
 
@@ -119,15 +118,12 @@ public class ConfigurationController {
 		}
 		
 		Label label = new Label("Header");
-		label.setFont(new Font(14));
 		
 		final TextField txtName = new TextField();
-		txtName.setFont(new Font(14));
 		txtName.setPromptText("name");
 		txtName.textProperty().bindBidirectional(header.getNameProperty());
 		
 		final TextField txtValue = new TextField();
-		txtValue.setFont(new Font(14));
 		txtValue.setPromptText("value");
 		txtValue.textProperty().bindBidirectional(header.getValueProperty());
 		
@@ -155,7 +151,12 @@ public class ConfigurationController {
 			result = new SaveDialog().showDialog();
 
 			if(result.isPresent()) {
-				if(saveData.getRestDataMap().containsKey(data.getName())) {
+				
+				Optional<RestData> other = saveData.getRestDataMap().values().stream()
+					.filter(rd -> rd.getName().equals(data.getName()) && rd.getProject().equals(data.getProject()))
+					.findAny();
+				
+				if(other.isPresent()) {
 					if(!showOverrideDialog(data.getName())) {
 						// do not override
 						return;

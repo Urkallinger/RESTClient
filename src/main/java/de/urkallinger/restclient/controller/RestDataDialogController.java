@@ -14,11 +14,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class RestDataDialogController {
@@ -41,32 +39,6 @@ public class RestDataDialogController {
 		
 		colProject.setCellValueFactory(cellData -> cellData.getValue().getValue().getProjectProperty());
 		colName.setCellValueFactory(cellData -> cellData.getValue().getValue().getNameProperty());
-		
-		colProject.setCellFactory(call -> new TreeTableCell<RestDataEntry, String>() {
-			@Override
-			protected void updateItem(String item, boolean empty) {
-				super.updateItem(item, empty);
-				if (!isEmpty()) {
-					setText(item);
-					setFont(new Font(14));
-				} else {
-					setText(null);
-				}
-			}
-		});
-		
-		colName.setCellFactory(call -> new TreeTableCell<RestDataEntry, String>() {
-			@Override
-			protected void updateItem(String item, boolean empty) {
-				super.updateItem(item, empty);
-				if (!isEmpty()) {
-					setText(item);
-					setFont(new Font(14));
-				} else {
-					setText(null);
-				}
-			}
-		});
 		
 		loadData();
 		
@@ -126,7 +98,7 @@ public class RestDataDialogController {
 		root.getChildren().addAll(entries);
 
 		treeTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-				btnOk.setDisable(newValue.getValue().getRestData() == null);
+			btnOk.setDisable(newValue.getValue().getRestData() == null);
 		});
 		
 		treeTable.setShowRoot(false);

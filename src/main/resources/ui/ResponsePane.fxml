@@ -14,10 +14,6 @@
 		<TextArea fx:id="taResponse" editable="false" prefHeight="200.0"
 			prefWidth="200.0" AnchorPane.bottomAnchor="0.0"
 			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-			AnchorPane.topAnchor="0.0">
-			<font>
-				<Font name="Consolas" size="14.0" />
-			</font>
-		</TextArea>
+			AnchorPane.topAnchor="0.0" style="-fx-font-family: Consolas;" />
 	</children>
 </AnchorPane>

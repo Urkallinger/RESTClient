@@ -57,6 +57,8 @@ public class MainApp extends Application {
 		rootLayout.setCenter(responseHolder.pane);
 		
 		scene = new Scene(rootLayout);
+		scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
+		
 		stage.setScene(scene);
 		stage.show();
 		
