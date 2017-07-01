@@ -3,6 +3,7 @@ package de.urkallinger.restclient.controller;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 
 public class ConfigurationController {
 
@@ -87,16 +89,20 @@ public class ConfigurationController {
 		headerGrid.getChildren().clear();
 	}
 	
-	private boolean showOverrideDialog(String name) {
+	private boolean showOverrideDialog(SaveDialogData saveData) {
 		ButtonType yes = new ButtonType("yes", ButtonBar.ButtonData.OK_DONE);
 		ButtonType no = new ButtonType("no", ButtonBar.ButtonData.CANCEL_CLOSE);
 		
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Override saved configuration");
-		alert.setHeaderText(String.format("A configuration with the name \"%s\" already exists.", name));
+		alert.setHeaderText(String.format("A configuration with the name \"%s\" already exists in project \"%s\".",
+				saveData.getName(), saveData.getProject()));
 		alert.setContentText("Do you want do override it?");
 		alert.getButtonTypes().clear();
 		alert.getButtonTypes().addAll(yes, no);
+		alert.getDialogPane().getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
+		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+		stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/AppIcon.png")));
 		
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == yes){
@@ -151,21 +157,21 @@ public class ConfigurationController {
 			result = new SaveDialog().showDialog();
 
 			if(result.isPresent()) {
+				SaveDialogData newData = result.get();
+				boolean nameAndProjectAlreadyTaken = saveData.getRestData().stream()
+						.anyMatch(savedData -> savedData.getName().equals(newData.getName()) 
+								&& savedData.getProject().equals(newData.getProject()));
 				
-				Optional<RestData> other = saveData.getRestDataMap().values().stream()
-					.filter(rd -> rd.getName().equals(data.getName()) && rd.getProject().equals(data.getProject()))
-					.findAny();
-				
-				if(other.isPresent()) {
-					if(!showOverrideDialog(data.getName())) {
+				if(nameAndProjectAlreadyTaken) {
+					if(!showOverrideDialog(result.get())) {
 						// do not override
 						return;
 					}
 				}
 				
-				SaveDialogData sdData = result.get();
-				data.setProject(sdData.getProject());
-				data.setName(sdData.getName());
+				data.setId(UUID.randomUUID());
+				data.setProject(newData.getProject());
+				data.setName(newData.getName());
 				
 			} else {
 				//cancel clicked
@@ -173,7 +179,7 @@ public class ConfigurationController {
 			}
 		}
 		
-		saveData.addRestData(data.getName(), data);
+		saveData.addRestData(data);
 		DataManager.saveData(saveData);
 		LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
 	}

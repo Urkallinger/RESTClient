@@ -1,7 +1,9 @@
 package de.urkallinger.restclient.data;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,21 +13,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SaveData {
 	
-	private Map<String, RestData> restData;
+	private Map<UUID, RestData> restData;
 	
 	public SaveData() {
 		this.restData = new HashMap<>();
 	}
-
-	public RestData getRestData(String name) {
-		return restData.get(name);
+	
+	public void addRestData(RestData data) {
+		restData.put(data.getId(), data);
 	}
 	
-	public void addRestData(String name, RestData data) {
-		restData.put(name, data);
+	public Collection<RestData> getRestData() {
+		return restData.values();
 	}
 	
-	public Map<String, RestData> getRestDataMap() {
-		return restData;
+	public void removeRestData(UUID id) {
+		restData.remove(id);
 	}
 }

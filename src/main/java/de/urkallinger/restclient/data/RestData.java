@@ -2,6 +2,7 @@ package de.urkallinger.restclient.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -22,6 +23,7 @@ public class RestData {
 	@XmlTransient
 	private final static Logger LOGGER = LoggerFactory.getLogger(RestData.class);
 	
+	private UUID id;
 	private StringProperty project;
 	private StringProperty name;
 	private StringProperty host;
@@ -31,6 +33,7 @@ public class RestData {
 	private List<Header> headers;
 
 	public RestData() {
+		this.id = UUID.randomUUID();
 		this.project = new SimpleStringProperty("");
 		this.name = new SimpleStringProperty("");
 		this.host = new SimpleStringProperty("");
@@ -38,6 +41,14 @@ public class RestData {
 		this.httpMethod = new SimpleStringProperty("");
 		this.payload = new SimpleStringProperty("");
 		this.headers = new ArrayList<>();
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
 	}
 
 	public StringProperty getProjectProperty() {

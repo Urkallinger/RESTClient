@@ -111,9 +111,13 @@ public class MainApp extends Application {
 
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
-				 String content = response.body().string();
-				Platform.runLater(() -> responseHolder.controller.setText(content)); 
-				LOGGER.info(String.format("response: %d - %s", response.code(), response.message()));
+				String content = response.body().string();
+				Platform.runLater(() -> responseHolder.controller.setText(content));
+				if(response.isSuccessful()) {
+					LOGGER.info(String.format("Response: %d - %s", response.code(), response.message()));
+				} else {
+					LOGGER.warn(String.format("Response: %d - %s", response.code(), response.message()));
+				}
 				response.body().close();
 			}
 

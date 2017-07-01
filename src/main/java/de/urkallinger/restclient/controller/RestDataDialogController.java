@@ -1,8 +1,8 @@
 package de.urkallinger.restclient.controller;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +51,7 @@ public class RestDataDialogController {
 				RestData entry = getSelectedEntry();
 				if(entry != null) {
 					SaveData data = DataManager.loadData();
-					data.getRestDataMap().remove(entry.getName());
+					data.removeRestData(entry.getId());
 					DataManager.saveData(data);
 					
 					 TreeItem<RestDataEntry> treeItem = treeTable.getSelectionModel().getSelectedItem();
@@ -77,15 +77,18 @@ public class RestDataDialogController {
 	}
 	
 	private void loadData() {
-		Map<String, RestData> restDataMap = DataManager.loadData().getRestDataMap();
-		Set<String> projects = restDataMap.values().stream().map(rs -> rs.getProject()).collect(Collectors.toSet());
+		Collection<RestData> restData = DataManager.loadData().getRestData();
 		List<TreeItem<RestDataEntry>> entries = new ArrayList<>();
+		
+		Set<String> projects = DataManager.loadData().getRestData().stream()
+				.map(rs -> rs.getProject())
+				.collect(Collectors.toSet());
 		
 		projects.forEach(prj -> {
 			TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(prj, "", null));
 			entries.add(item);
 			
-			restDataMap.values().stream()
+			restData.stream()
 				.filter(rs -> rs.getProject().equals(prj))
 				.forEach(rs -> {
 					RestDataEntry entry = new RestDataEntry(rs.getProject(), rs.getName(), rs);
@@ -98,7 +101,7 @@ public class RestDataDialogController {
 		root.getChildren().addAll(entries);
 
 		treeTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			btnOk.setDisable(newValue.getValue().getRestData() == null);
+			btnOk.setDisable(newValue == null || newValue.getValue().getRestData() == null);
 		});
 		
 		treeTable.setShowRoot(false);

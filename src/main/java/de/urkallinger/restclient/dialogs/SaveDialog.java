@@ -44,7 +44,7 @@ public class SaveDialog extends Dialog<SaveDialogData> {
 
 		Label lblProject = new Label("Project");
 		
-		Set<String> entries = DataManager.loadData().getRestDataMap().values().stream()
+		Set<String> entries = DataManager.loadData().getRestData().stream()
 				.map(rs -> rs.getProject())
 				.collect(Collectors.toSet());
 		
