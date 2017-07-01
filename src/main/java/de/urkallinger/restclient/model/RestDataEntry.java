@@ -6,32 +6,17 @@ import javafx.beans.property.StringProperty;
 
 public class RestDataEntry {
 
-	private StringProperty project;
 	private StringProperty name;
 	private RestData restData;
 	
 	public RestDataEntry() {
-		this.project = new SimpleStringProperty("");
 		this.name = new SimpleStringProperty("");
 		this.restData = null;
 	}
 	
-	public RestDataEntry(String project, String name, RestData restData) {
-		this.project = new SimpleStringProperty(project);
+	public RestDataEntry(String name, RestData restData) {
 		this.name = new SimpleStringProperty(name);
 		this.restData = restData;
-	}
-	
-	public StringProperty getProjectProperty() {
-		return project;
-	}
-	
-	public String getProject() {
-		return project.get();
-	}
-	
-	public void setProject(String project) {
-		this.project.set(project);
 	}
 	
 	public StringProperty getNameProperty() {

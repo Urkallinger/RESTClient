@@ -23,8 +23,6 @@ public class RestDataDialogController {
 	@FXML
 	TreeTableView<RestDataEntry> treeTable = new TreeTableView<>();
 	@FXML
-	TreeTableColumn<RestDataEntry, String> colProject = new TreeTableColumn<>();
-	@FXML
 	TreeTableColumn<RestDataEntry, String> colName = new TreeTableColumn<>();
 	@FXML
 	Button btnOk = new Button();
@@ -37,7 +35,6 @@ public class RestDataDialogController {
 	private void initialize() {
 		 btnOk.setDisable(true);
 		
-		colProject.setCellValueFactory(cellData -> cellData.getValue().getValue().getProjectProperty());
 		colName.setCellValueFactory(cellData -> cellData.getValue().getValue().getNameProperty());
 		
 		loadData();
@@ -85,13 +82,13 @@ public class RestDataDialogController {
 				.collect(Collectors.toSet());
 		
 		projects.forEach(prj -> {
-			TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(prj, "", null));
+			TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(prj, null));
 			entries.add(item);
 			
 			restData.stream()
 				.filter(rs -> rs.getProject().equals(prj))
 				.forEach(rs -> {
-					RestDataEntry entry = new RestDataEntry(rs.getProject(), rs.getName(), rs);
+					RestDataEntry entry = new RestDataEntry(rs.getName(), rs);
 					TreeItem<RestDataEntry> child = new TreeItem<>(entry);
 					item.getChildren().add(child);
 				});

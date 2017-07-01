@@ -26,14 +26,15 @@
 		<TreeTableView fx:id="treeTable" prefHeight="200.0"
 			prefWidth="200.0" BorderPane.alignment="CENTER">
 			<columns>
-				<TreeTableColumn fx:id="colProject"
-					style="-fx-font-weight: normal;" text="Project" />
-				<TreeTableColumn fx:id="colName"
-					style="-fx-font-weight: normal;" text="Configuration name" />
+				<TreeTableColumn fx:id="colName" style="-fx-font-weight: normal;"
+					text="Configuration" />
 			</columns>
 			<columnResizePolicy>
 				<TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
 			</columnResizePolicy>
+			<BorderPane.margin>
+				<Insets bottom="10.0" />
+			</BorderPane.margin>
 		</TreeTableView>
 	</center>
 </BorderPane>
