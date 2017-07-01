@@ -148,30 +148,33 @@ public class ConfigurationController {
 	}
 	
 	public void save(boolean saveAsNew) {
+		SaveData saveData = DataManager.loadData();
+		Optional<SaveDialogData> result = Optional.empty();
+		
 		if(saveAsNew || data.getName() == null || data.getName().isEmpty()) {
-			Optional<SaveDialogData> result = new SaveDialog().showDialog();
+			result = new SaveDialog().showDialog();
+
 			if(result.isPresent()) {
+				if(saveData.getRestDataMap().containsKey(data.getName())) {
+					if(!showOverrideDialog(data.getName())) {
+						// do not override
+						return;
+					}
+				}
+				
 				SaveDialogData sdData = result.get();
 				data.setProject(sdData.getProject());
 				data.setName(sdData.getName());
+				
 			} else {
-				// Cancel clicked
+				//cancel clicked
 				return;
 			}
 		}
 		
-		boolean override = true;
-		
-		SaveData saveData = DataManager.loadData();
-		if(saveData.getRestDataMap().containsKey(data.getName())) {
-			override = showOverrideDialog(data.getName());
-		}
-		
-		if(override) {
-			saveData.addRestData(data.getName(), data);
-			DataManager.saveData(saveData);
-			LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
-		}
+		saveData.addRestData(data.getName(), data);
+		DataManager.saveData(saveData);
+		LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
 	}
 	
 	public void load(RestData data) {
