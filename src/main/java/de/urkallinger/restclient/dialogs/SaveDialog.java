@@ -1,7 +1,7 @@
 package de.urkallinger.restclient.dialogs;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.urkallinger.restclient.data.DataManager;
@@ -44,15 +44,20 @@ public class SaveDialog extends Dialog<SaveDialogData> {
 
 		Label lblProject = new Label("Project");
 		
-		Set<String> entries = DataManager.loadData().getRestData().stream()
+		List<String> entries = DataManager.loadData().getRestData().stream()
 				.map(rs -> rs.getProject())
-				.collect(Collectors.toSet());
+				.distinct()
+				.collect(Collectors.toList());
 		
 		ComboBox<String> cbProject = new ComboBox<>();
 		cbProject.getItems().addAll(entries);
 		cbProject.setEditable(true);
 		cbProject.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
-			if(event.getCode() == KeyCode.DOWN) cbProject.show();
+			if(event.getCode() == KeyCode.DOWN) {
+				if(!cbProject.isShowing()) {
+					cbProject.show();
+				}
+			}
 		});
 
 		Label lblName = new Label("Name");
