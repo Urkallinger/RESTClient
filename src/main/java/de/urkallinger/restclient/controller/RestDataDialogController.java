@@ -1,18 +1,21 @@
 package de.urkallinger.restclient.controller;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import de.urkallinger.restclient.data.DataManager;
 import de.urkallinger.restclient.data.RestData;
+import de.urkallinger.restclient.data.RestDataBase;
+import de.urkallinger.restclient.data.RestDataContainer;
+import de.urkallinger.restclient.data.RestDataType;
 import de.urkallinger.restclient.data.SaveData;
 import de.urkallinger.restclient.model.RestDataEntry;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -30,14 +33,14 @@ public class RestDataDialogController {
 	Button btnCancel = new Button();
 	
 	private boolean ok = false;
+	private RestDataType allowedType = RestDataType.REST_DATA;
 	
 	@FXML
 	private void initialize() {
 		 btnOk.setDisable(true);
 		
 		colName.setCellValueFactory(cellData -> cellData.getValue().getValue().getNameProperty());
-		
-		loadData();
+		treeTable.setContextMenu(createContextMenu());
 		
 		// Muss mit Platform.runLater() ausgeführt werden, sonst gehts nicht.
 		Platform.runLater(() -> setFocusOnTable());
@@ -45,9 +48,10 @@ public class RestDataDialogController {
 		treeTable.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
 			switch(event.getCode()) {
 			case DELETE:
-				RestData entry = getSelectedEntry();
+				RestDataBase entry = getSelectedEntry();
 				if(entry != null) {
 					SaveData data = DataManager.loadData();
+					// TODO: Funktioniert nicht mehr, da nicht rekursiv
 					data.removeRestData(entry.getId());
 					DataManager.saveData(data);
 					
@@ -61,8 +65,47 @@ public class RestDataDialogController {
 		});
 	}
 	
-	public RestData getSelectedEntry() {
-		if (treeTable.getSelectionModel().getSelectedItem() != null) {
+	private ContextMenu createContextMenu() {
+		MenuItem item = new MenuItem("create new container");
+		item.setOnAction(event -> {
+			
+			TextInputDialog nameChooser = new TextInputDialog();
+			nameChooser.setTitle("Containername");
+			nameChooser.setHeaderText("Choose a name for the new container.");
+			
+			Optional<String> result = nameChooser.showAndWait();
+			
+			RestDataEntry entry;
+			RestDataContainer container = new RestDataContainer();
+			if (result.isPresent()){
+				container.setName(result.get());
+				entry = new RestDataEntry(result.get(), container);
+			} else {
+				return;
+			}
+			
+			TreeItem<RestDataEntry> treeItem = new TreeItem<>(entry);
+			TreeItem<RestDataEntry> selection = treeTable.getSelectionModel().getSelectedItem();
+			
+			SaveData saveData = DataManager.loadData();
+			if(selection != null) {
+				saveData.addRestData(container, selection.getValue().getRestData().getId());
+				selection.getChildren().add(treeItem);
+			} else {
+				// keine elemente im baum
+				saveData.addRestData(container);
+				treeTable.getRoot().getChildren().add(treeItem);
+			}
+			DataManager.saveData(saveData);
+		});
+		
+		return new ContextMenu(item);
+		
+	}
+	
+	public RestDataBase getSelectedEntry() {
+		TreeItem<RestDataEntry> item = treeTable.getSelectionModel().getSelectedItem();
+		if (item != null && item.getValue().getRestData().getType() == allowedType) {
 			return treeTable.getSelectionModel().getSelectedItem().getValue().getRestData();
 		} else {
 			return null;
@@ -73,32 +116,33 @@ public class RestDataDialogController {
 		return ok;
 	}
 	
-	private void loadData() {
-		Collection<RestData> restData = DataManager.loadData().getRestData();
-		List<TreeItem<RestDataEntry>> entries = new ArrayList<>();
-		
-		Set<String> projects = DataManager.loadData().getRestData().stream()
-				.map(rs -> rs.getProject())
-				.collect(Collectors.toSet());
-		
-		projects.forEach(prj -> {
-			TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(prj, null));
-			entries.add(item);
-			
-			restData.stream()
-				.filter(rs -> rs.getProject().equals(prj))
-				.forEach(rs -> {
-					RestDataEntry entry = new RestDataEntry(rs.getName(), rs);
-					TreeItem<RestDataEntry> child = new TreeItem<>(entry);
-					item.getChildren().add(child);
-				});
+	public void setAllowedType(RestDataType type) {
+		allowedType = type;
+	}
+	
+	private void buildTree(Collection<RestDataBase> data, TreeItem<RestDataEntry> parent) {
+		// Containerknoten erstellen
+		data.stream().filter(rd -> rd.getType() == RestDataType.CONTAINER).forEach(container -> {
+			TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(container.getName(), container));
+			parent.getChildren().add(item);
+			RestDataContainer c = (RestDataContainer) container;
+			buildTree(c.getChildren(), item);
 		});
-		
-		TreeItem<RestDataEntry> root = new TreeItem<>();
-		root.getChildren().addAll(entries);
 
+		// Blattknoten erstellen
+		data.stream().filter(rd -> rd.getType() == RestDataType.REST_DATA).forEach(rd -> {
+			RestDataEntry entry = new RestDataEntry(rd.getName(), (RestData) rd);
+			TreeItem<RestDataEntry> child = new TreeItem<>(entry);
+			parent.getChildren().add(child);
+		});
+	}
+	
+	public void loadData(Collection<RestDataBase> content) {
+		TreeItem<RestDataEntry> root = new TreeItem<>();
+		buildTree(content, root);
+		
 		treeTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			btnOk.setDisable(newValue == null || newValue.getValue().getRestData() == null);
+			btnOk.setDisable(newValue.getValue().getRestData().getType() != allowedType);
 		});
 		
 		treeTable.setShowRoot(false);

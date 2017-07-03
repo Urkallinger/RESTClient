@@ -2,30 +2,17 @@ package de.urkallinger.restclient.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-@XmlRootElement(name = "rest")
-@XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlRootElement(name = "rest-data")
+public class RestData extends RestDataBase {
 
-public class RestData {
-
-	@XmlTransient
-	private final static Logger LOGGER = LoggerFactory.getLogger(RestData.class);
-	
-	private UUID id;
-	private StringProperty project;
-	private StringProperty name;
 	private StringProperty host;
 	private StringProperty path;
 	private StringProperty httpMethod;
@@ -33,9 +20,6 @@ public class RestData {
 	private List<Header> headers;
 
 	public RestData() {
-		this.id = UUID.randomUUID();
-		this.project = new SimpleStringProperty("");
-		this.name = new SimpleStringProperty("");
 		this.host = new SimpleStringProperty("");
 		this.path = new SimpleStringProperty("");
 		this.httpMethod = new SimpleStringProperty("");
@@ -43,42 +27,11 @@ public class RestData {
 		this.headers = new ArrayList<>();
 	}
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public StringProperty getProjectProperty() {
-		return project;
-	}
-	
-	public String getProject() {
-		return project.get();
-	}
-
-	public void setProject(String project) {
-		this.project.set(project);
-	}
-
-	public StringProperty getNameProperty() {
-		return name;
-	}
-	
-	public String getName() {
-		return name.get();
-	}
-
-	public void setName(String name) {
-		this.name.set(name);
-	}
-
 	public StringProperty getHostProperty() {
 		return host;
 	}
-	
+
+	@XmlAttribute(name = "host")
 	public String getHost() {
 		return host.get();
 	}
@@ -91,6 +44,7 @@ public class RestData {
 		return path;
 	}
 	
+	@XmlAttribute(name = "path")
 	public String getPath() {
 		return path.get();
 	}
@@ -103,6 +57,7 @@ public class RestData {
 		return httpMethod;
 	}
 	
+	@XmlAttribute(name = "httpMethod")
 	public String getHttpMethod() {
 		return httpMethod.get();
 	}
@@ -115,6 +70,7 @@ public class RestData {
 		return payload;
 	}
 	
+	@XmlAttribute(name = "payload")
 	public String getPayload() {
 		return payload.get();
 	}
@@ -123,6 +79,7 @@ public class RestData {
 		this.payload.set(payload);
 	}
 	
+	@XmlElement(name = "headers")
 	public List<Header> getHeaders() {
 		return headers;
 	}
@@ -133,5 +90,10 @@ public class RestData {
 	
 	public void addHeader(Header header) {
 		headers.add(header);
+	}
+
+	@Override
+	public RestDataType getType() {
+		return RestDataType.REST_DATA;
 	}
 }

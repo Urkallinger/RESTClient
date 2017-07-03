@@ -10,6 +10,8 @@ import de.urkallinger.restclient.controller.ConfigurationController;
 import de.urkallinger.restclient.controller.ConsoleController;
 import de.urkallinger.restclient.controller.ResponseController;
 import de.urkallinger.restclient.data.DataManager;
+import de.urkallinger.restclient.data.RestData;
+import de.urkallinger.restclient.data.RestDataType;
 import de.urkallinger.restclient.dialogs.RestDataDialog;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -38,7 +40,12 @@ public class MainApp extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		DataManager.createOrUpdateConfiguration();
+		try {
+			DataManager.createOrUpdateConfiguration();
+		} catch (Exception e) {
+			LOGGER.error("An error occurred while trying to create/update the saved data.");
+			LOGGER.error(e.getMessage(), e);
+		}
 		
 		this.stage = primaryStage;
 		this.stage.setTitle("RESTClient");
@@ -65,42 +72,45 @@ public class MainApp extends Application {
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			switch (event.getCode()) {
 			case S:
-				if(event.isControlDown()) {
-					configHolder.controller.save(event.isShiftDown());
-				}
+				if(!event.isControlDown()) break;
+				configHolder.controller.save(event.isShiftDown());
 				break;
+				
 			case O:
-				if(event.isControlDown()) {
-					RestDataDialog dialog = new RestDataDialog();
-					dialog.setParentStage(stage);
-					dialog.showAndWait();
-					dialog.getResult().ifPresent(data -> {
-						responseHolder.controller.clearContent();
-						configHolder.controller.load(data);
-					});
-				}
+				if(!event.isControlDown()) break;
+				
+				RestDataDialog openDialog = new RestDataDialog();
+				openDialog.setAllowedType(RestDataType.REST_DATA);
+				openDialog.setParentStage(stage);
+				openDialog.showAndWait();
+				openDialog.getResult().ifPresent(data -> {
+					responseHolder.controller.clearContent();
+					configHolder.controller.load((RestData) data);
+				});
 				break;
+				
 			case C:
-				if(event.isAltDown()) {
-					consoleHolder.controller.clear();
-					event.consume();
-				}
+				if(!event.isAltDown()) break;
+				consoleHolder.controller.clear();
+				event.consume();
 				break;
+				
 			case F:
-				if(event.isControlDown()) {
-					configHolder.controller.formatPayload();
-				}
+				if(!event.isControlDown()) break;
+				configHolder.controller.formatPayload();
 				break;
+				
 			case ENTER:
-				if(event.isAltDown()) {
-					sendRequest();
-					event.consume();
-				}
+				if(!event.isAltDown()) break;
+				sendRequest();
+				event.consume();
 				break;
+				
 			case H:
-				if(event.isAltDown()) {
-					configHolder.controller.addHeader();
-				}
+				if(!event.isAltDown()) break;
+				configHolder.controller.addHeader();
+				break;
+				
 			default: break;
 			}
 		});
@@ -145,6 +155,7 @@ public class MainApp extends Application {
 		ConfigurationHolder holder = new ConfigurationHolder();
 		holder.pane = loader.load();
 		holder.controller = loader.getController();
+		holder.controller.setParentStage(stage);
 
 		return holder;
 	}

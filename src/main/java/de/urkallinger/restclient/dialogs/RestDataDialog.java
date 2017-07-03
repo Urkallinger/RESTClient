@@ -1,13 +1,16 @@
 package de.urkallinger.restclient.dialogs;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.urkallinger.restclient.controller.RestDataDialogController;
-import de.urkallinger.restclient.data.RestData;
+import de.urkallinger.restclient.data.DataManager;
+import de.urkallinger.restclient.data.RestDataBase;
+import de.urkallinger.restclient.data.RestDataType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -22,18 +25,29 @@ public class RestDataDialog {
 	
 	private Stage parentStage;
 	private RestDataDialogController controller;
-	private Optional<RestData> result = Optional.empty();
-
+	private Optional<RestDataBase> result = Optional.empty();
+	private RestDataType allowedType = RestDataType.REST_DATA;
+	private Collection<RestDataBase> content;
+	
 	private Stage stage;
 	
 	public RestDataDialog() {
+		this.content = DataManager.loadData().getRestData();
 	}
 
 	public void setParentStage(Stage parentStage) {
 		this.parentStage = parentStage;
 	}
 	
-	public Optional<RestData> getResult() {
+	public void setAllowedType(RestDataType type) {
+		allowedType = type;
+	}
+	
+	public void setContent(Collection<RestDataBase> content) {
+		this.content = content;
+	}
+	
+	public Optional<RestDataBase> getResult() {
 		return result;
 	}
 	
@@ -52,6 +66,8 @@ public class RestDataDialog {
 			BorderPane layout = (BorderPane) loader.load();
 
 			controller = loader.getController();
+			controller.setAllowedType(allowedType);
+			controller.loadData(content);
 
 			Scene scene = new Scene(layout);
 			scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
@@ -75,7 +91,7 @@ public class RestDataDialog {
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			switch (event.getCode()) {
 			case ENTER:
-				RestData restData = controller.getSelectedEntry();
+				RestDataBase restData = controller.getSelectedEntry();
 				if(restData != null) {
 					result = Optional.of(restData);
 					stage.close();

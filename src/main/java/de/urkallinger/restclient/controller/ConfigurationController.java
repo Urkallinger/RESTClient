@@ -16,9 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.urkallinger.restclient.data.DataManager;
 import de.urkallinger.restclient.data.Header;
 import de.urkallinger.restclient.data.RestData;
+import de.urkallinger.restclient.data.RestDataBase;
+import de.urkallinger.restclient.data.RestDataContainer;
+import de.urkallinger.restclient.data.RestDataType;
 import de.urkallinger.restclient.data.SaveData;
-import de.urkallinger.restclient.dialogs.SaveDialog;
-import de.urkallinger.restclient.model.SaveDialogData;
+import de.urkallinger.restclient.dialogs.RestDataDialog;
 import de.urkallinger.restclient.utils.DragResizer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -31,6 +33,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -53,6 +56,8 @@ public class ConfigurationController {
 	private TextArea taPayload = new TextArea();
 	@FXML
 	private GridPane headerGrid = new GridPane();
+	
+	private Stage parentStage;
 	
 	@FXML
 	private void initialize() {
@@ -89,14 +94,13 @@ public class ConfigurationController {
 		headerGrid.getChildren().clear();
 	}
 	
-	private boolean showOverrideDialog(SaveDialogData saveData) {
+	private boolean showOverrideDialog(String name) {
 		ButtonType yes = new ButtonType("yes", ButtonBar.ButtonData.OK_DONE);
 		ButtonType no = new ButtonType("no", ButtonBar.ButtonData.CANCEL_CLOSE);
 		
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Override saved configuration");
-		alert.setHeaderText(String.format("A configuration with the name \"%s\" already exists in project \"%s\".",
-				saveData.getName(), saveData.getProject()));
+		alert.setHeaderText(String.format("A configuration with the name \"%s\" already exists.", name));
 		alert.setContentText("Do you want do override it?");
 		alert.getButtonTypes().clear();
 		alert.getButtonTypes().addAll(yes, no);
@@ -110,6 +114,10 @@ public class ConfigurationController {
 		} else {
 			return false;
 		}
+	}
+	
+	public void setParentStage(Stage parentStage) {
+		this.parentStage = parentStage;
 	}
 	
 	public void addHeader() {
@@ -150,36 +158,49 @@ public class ConfigurationController {
 	}
 	
 	public void save(boolean saveAsNew) {
+		
 		SaveData saveData = DataManager.loadData();
-		Optional<SaveDialogData> result = Optional.empty();
 		
 		if(saveAsNew || data.getName() == null || data.getName().isEmpty()) {
-			result = new SaveDialog().showDialog();
+			
+			RestDataDialog containerChooser = new RestDataDialog();
+			containerChooser.setAllowedType(RestDataType.CONTAINER);
+			containerChooser.setParentStage(parentStage);
+			containerChooser.setContent(saveData.getRestData());
+			containerChooser.showAndWait();
 
-			if(result.isPresent()) {
-				SaveDialogData newData = result.get();
-				boolean nameAndProjectAlreadyTaken = saveData.getRestData().stream()
-						.anyMatch(savedData -> savedData.getName().equals(newData.getName()) 
-								&& savedData.getProject().equals(newData.getProject()));
-				
-				if(nameAndProjectAlreadyTaken) {
-					if(!showOverrideDialog(result.get())) {
-						// do not override
-						return;
-					}
-				}
-				
-				data.setId(UUID.randomUUID());
-				data.setProject(newData.getProject());
-				data.setName(newData.getName());
-				
-			} else {
-				//cancel clicked
+			if (!containerChooser.getResult().isPresent()) {
+				// cancel clicked
 				return;
 			}
+			
+			TextInputDialog nameChooser = new TextInputDialog();
+			nameChooser.setTitle("Configuration name");
+			nameChooser.setHeaderText("Choose a name for the new configuration.");
+			
+			Optional<String> result = nameChooser.showAndWait();
+			if (!result.isPresent()){
+			    // cancel clicked
+				return;
+			}
+
+			RestDataContainer container = (RestDataContainer) containerChooser.getResult().get();
+			String name = result.get();
+			
+			boolean nameTaken = container.getChildren().stream().map(RestDataBase::getName).anyMatch(n -> n.equals(name));
+			if(nameTaken) {
+				if(!showOverrideDialog(name)) {
+					// do not override
+					return;
+				}
+			} else {
+				data.setId(UUID.randomUUID());
+			}
+			
+			data.setName(name);
+			container.addChild(data);
 		}
 		
-		saveData.addRestData(data);
 		DataManager.saveData(saveData);
 		LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
 	}

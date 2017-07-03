@@ -1,20 +1,20 @@
 package de.urkallinger.restclient.model;
 
-import de.urkallinger.restclient.data.RestData;
+import de.urkallinger.restclient.data.RestDataBase;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class RestDataEntry {
 
 	private StringProperty name;
-	private RestData restData;
+	private RestDataBase restData;
 	
 	public RestDataEntry() {
 		this.name = new SimpleStringProperty("");
 		this.restData = null;
 	}
 	
-	public RestDataEntry(String name, RestData restData) {
+	public RestDataEntry(String name, RestDataBase restData) {
 		this.name = new SimpleStringProperty(name);
 		this.restData = restData;
 	}
@@ -31,11 +31,11 @@ public class RestDataEntry {
 		this.name.set(name);
 	}
 	
-	public RestData getRestData() {
+	public RestDataBase getRestData() {
 		return restData;
 	}
 	
-	public void setRestData(RestData restData) {
+	public void setRestData(RestDataBase restData) {
 		this.restData = restData;
 	}
 }
