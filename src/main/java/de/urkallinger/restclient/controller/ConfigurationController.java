@@ -24,6 +24,7 @@ import de.urkallinger.restclient.dialogs.RestDataDialog;
 import de.urkallinger.restclient.utils.DragResizer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -177,6 +178,13 @@ public class ConfigurationController {
 			TextInputDialog nameChooser = new TextInputDialog();
 			nameChooser.setTitle("Configuration name");
 			nameChooser.setHeaderText("Choose a name for the new configuration.");
+			
+			Scene scene = nameChooser.getDialogPane().getScene();
+			scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
+			
+			Image icon = new Image(getClass().getResourceAsStream("/images/AppIcon.png"));
+			Stage stage = (Stage) scene.getWindow();
+			stage.getIcons().add(icon);
 			
 			Optional<String> result = nameChooser.showAndWait();
 			if (!result.isPresent()){

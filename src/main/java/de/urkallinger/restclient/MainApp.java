@@ -137,7 +137,11 @@ public class MainApp extends Application {
 			}
 		};
 		
-		CommunicationHandler.sendRequest(configHolder.controller.getRestData(), c);
+		try {
+			CommunicationHandler.sendRequest(configHolder.controller.getRestData(), c);
+		} catch (IllegalArgumentException e) {
+			LOGGER.error(e.getMessage());
+		}
 	}
 
 	private BorderPane initRootLayout() throws IOException {

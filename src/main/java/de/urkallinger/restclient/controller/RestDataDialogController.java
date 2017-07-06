@@ -12,6 +12,7 @@ import de.urkallinger.restclient.data.SaveData;
 import de.urkallinger.restclient.model.RestDataEntry;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -19,6 +20,8 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
@@ -41,6 +44,12 @@ public class RestDataDialogController {
 		
 		colName.setCellValueFactory(cellData -> cellData.getValue().getValue().getNameProperty());
 		treeTable.setContextMenu(createContextMenu());
+		treeTable.setOnContextMenuRequested(event -> {
+			TreeItem<RestDataEntry> item = treeTable.getSelectionModel().getSelectedItem();
+			if(item != null && item.getValue().getRestData().getType() != RestDataType.CONTAINER) {
+				treeTable.getContextMenu().hide();
+			}
+		});
 		
 		// Muss mit Platform.runLater() ausgeführt werden, sonst gehts nicht.
 		Platform.runLater(() -> setFocusOnTable());
@@ -73,6 +82,13 @@ public class RestDataDialogController {
 			nameChooser.setTitle("Containername");
 			nameChooser.setHeaderText("Choose a name for the new container.");
 			
+			Scene scene = nameChooser.getDialogPane().getScene();
+			scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
+			
+			Image icon = new Image(getClass().getResourceAsStream("/images/AppIcon.png"));
+			Stage stage = (Stage) scene.getWindow();
+			stage.getIcons().add(icon);
+			
 			Optional<String> result = nameChooser.showAndWait();
 			
 			RestDataEntry entry;
@@ -85,6 +101,8 @@ public class RestDataDialogController {
 			}
 			
 			TreeItem<RestDataEntry> treeItem = new TreeItem<>(entry);
+			icon = new Image(getClass().getResourceAsStream("/images/container.png"));
+			treeItem.setGraphic(new ImageView(icon));
 			TreeItem<RestDataEntry> selection = treeTable.getSelectionModel().getSelectedItem();
 			
 			SaveData saveData = DataManager.loadData();
@@ -124,6 +142,8 @@ public class RestDataDialogController {
 		// Containerknoten erstellen
 		data.stream().filter(rd -> rd.getType() == RestDataType.CONTAINER).forEach(container -> {
 			TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(container.getName(), container));
+			Image icon = new Image(getClass().getResourceAsStream("/images/container.png"));
+			item.setGraphic(new ImageView(icon));
 			parent.getChildren().add(item);
 			RestDataContainer c = (RestDataContainer) container;
 			buildTree(c.getChildren(), item);
@@ -133,6 +153,8 @@ public class RestDataDialogController {
 		data.stream().filter(rd -> rd.getType() == RestDataType.REST_DATA).forEach(rd -> {
 			RestDataEntry entry = new RestDataEntry(rd.getName(), (RestData) rd);
 			TreeItem<RestDataEntry> child = new TreeItem<>(entry);
+			Image icon = new Image(getClass().getResourceAsStream("/images/configuration.png"));
+			child.setGraphic(new ImageView(icon));
 			parent.getChildren().add(child);
 		});
 	}
@@ -142,7 +164,7 @@ public class RestDataDialogController {
 		buildTree(content, root);
 		
 		treeTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			btnOk.setDisable(newValue.getValue().getRestData().getType() != allowedType);
+			btnOk.setDisable(newValue == null || newValue.getValue().getRestData().getType() != allowedType);
 		});
 		
 		treeTable.setShowRoot(false);

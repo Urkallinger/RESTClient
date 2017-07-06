@@ -9,11 +9,18 @@ import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @XmlRootElement(name = "configuration")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SaveData {
 
+	@XmlTransient
+	private static final Logger LOGGER = LoggerFactory.getLogger(SaveData.class);
+	
 	private Map<UUID, RestDataBase> restData;
 
 	public SaveData() {
@@ -37,11 +44,14 @@ public class SaveData {
 			if(map.get(parent).getType() == RestDataType.CONTAINER) {
 				((RestDataContainer) map.get(parent)).addChild(data);
 			} else {
-				map.values().stream()
-					.filter(rd -> rd.getType() == RestDataType.CONTAINER)
-					.map(rd -> (RestDataContainer) rd)
-					.forEach(container -> addRecursiv(container.getChildrenMap(), parent, data));
+				String pn = map.get(parent).getName();
+				LOGGER.error("Can not add %s to %s because %s is not a container.", data.getName(), pn, pn);
 			}
+		} else {
+			map.values().stream()
+				.filter(rd -> rd.getType() == RestDataType.CONTAINER)
+				.map(rd -> (RestDataContainer) rd)
+				.forEach(container -> addRecursiv(container.getChildrenMap(), parent, data));
 		}
 	}
 
