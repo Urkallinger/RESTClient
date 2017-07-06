@@ -162,6 +162,8 @@ public class ConfigurationController {
 		SaveData saveData = DataManager.loadData();
 		
 		if(saveAsNew || data.getName() == null || data.getName().isEmpty()) {
+
+			// TODO: Container anlegen klappt nicht!!
 			
 			RestDataDialog containerChooser = new RestDataDialog();
 			containerChooser.setAllowedType(RestDataType.CONTAINER);
