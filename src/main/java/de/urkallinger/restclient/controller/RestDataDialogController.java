@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 import de.urkallinger.restclient.data.DataManager;
-import de.urkallinger.restclient.data.RestData;
 import de.urkallinger.restclient.data.RestDataBase;
 import de.urkallinger.restclient.data.RestDataContainer;
 import de.urkallinger.restclient.data.RestDataType;
@@ -73,39 +72,43 @@ public class RestDataDialogController {
 	
 	private ContextMenu createContextMenu() {
 		MenuItem item = new MenuItem("create new container");
-		item.setOnAction(event -> {
-			
-			NameChooser nameChooser = new NameChooser("Containername", "Choose a name for the new container.");
-			Optional<String> result = nameChooser.showAndWait();
-			
-			RestDataEntry entry;
-			RestDataContainer container = new RestDataContainer();
-			if (result.isPresent()){
-				container.setName(result.get());
-				entry = new RestDataEntry(result.get(), container);
-			} else {
-				return;
-			}
-			
-			TreeItem<RestDataEntry> treeItem = new TreeItem<>(entry);
-			Image icon = new Image(getClass().getResourceAsStream("/images/container.png"));
-			treeItem.setGraphic(new ImageView(icon));
-			TreeItem<RestDataEntry> selection = treeTable.getSelectionModel().getSelectedItem();
-			
-			SaveData saveData = DataManager.loadData();
-			if(selection != null) {
-				saveData.addRestData(container, selection.getValue().getRestData().getId());
-				selection.getChildren().add(treeItem);
-			} else {
-				// keine elemente im baum
-				saveData.addRestData(container);
-				treeTable.getRoot().getChildren().add(treeItem);
-			}
-			DataManager.saveData(saveData);
-		});
-		
+		item.setOnAction(event -> createNewContainer());
+
 		return new ContextMenu(item);
 		
+	}
+	
+	/**
+	 * Kontextmenü Methode
+	 */
+	private void createNewContainer() {
+		NameChooser nameChooser = new NameChooser("Containername", "Choose a name for the new container.");
+		Optional<String> result = nameChooser.showAndWait();
+		
+		RestDataEntry entry;
+		RestDataContainer container = new RestDataContainer();
+		if (result.isPresent()){
+			container.setName(result.get());
+			entry = new RestDataEntry(result.get(), container);
+		} else {
+			return;
+		}
+		
+		TreeItem<RestDataEntry> treeItem = new TreeItem<>(entry);
+		Image icon = new Image(getClass().getResourceAsStream("/images/container.png"));
+		treeItem.setGraphic(new ImageView(icon));
+		TreeItem<RestDataEntry> selection = treeTable.getSelectionModel().getSelectedItem();
+		
+		SaveData saveData = DataManager.loadData();
+		if(selection != null) {
+			saveData.addRestData(container, selection.getValue().getRestData().getId());
+			selection.getChildren().add(treeItem);
+		} else {
+			// keine elemente im baum
+			saveData.addRestData(container);
+			treeTable.getRoot().getChildren().add(treeItem);
+		}
+		DataManager.saveData(saveData);
 	}
 	
 	public RestDataBase getSelectedEntry() {
@@ -128,20 +131,14 @@ public class RestDataDialogController {
 	private void buildTree(Collection<RestDataBase> data, TreeItem<RestDataEntry> parent) {
 		// Containerknoten erstellen
 		data.stream().filter(rd -> rd.getType() == RestDataType.CONTAINER).forEach(container -> {
-			TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(container.getName(), container));
-			Image icon = new Image(getClass().getResourceAsStream("/images/container.png"));
-			item.setGraphic(new ImageView(icon));
+			TreeItem<RestDataEntry> item = createTreeItem(container);
 			parent.getChildren().add(item);
-			RestDataContainer c = (RestDataContainer) container;
-			buildTree(c.getChildren(), item);
+			buildTree(((RestDataContainer) container).getChildren(), item);
 		});
 
 		// Blattknoten erstellen
 		data.stream().filter(rd -> rd.getType() == RestDataType.REST_DATA).forEach(rd -> {
-			RestDataEntry entry = new RestDataEntry(rd.getName(), (RestData) rd);
-			TreeItem<RestDataEntry> child = new TreeItem<>(entry);
-			Image icon = new Image(getClass().getResourceAsStream("/images/configuration.png"));
-			child.setGraphic(new ImageView(icon));
+			TreeItem<RestDataEntry> child = createTreeItem(rd);
 			parent.getChildren().add(child);
 		});
 	}
@@ -162,6 +159,19 @@ public class RestDataDialogController {
 		treeTable.getSelectionModel().select(0);
 		treeTable.getFocusModel().focus(0);
 		treeTable.requestFocus();
+	}
+	
+	private TreeItem<RestDataEntry> createTreeItem(RestDataBase data) {
+		TreeItem<RestDataEntry> item = new TreeItem<>(new RestDataEntry(data.getName(), data));
+		String imgPath;
+		if(data.getType() == RestDataType.CONTAINER) {
+			imgPath = "/images/container.png";
+		} else {
+			imgPath = "/images/configuration.png";
+		}
+		Image icon = new Image(getClass().getResourceAsStream(imgPath));
+		item.setGraphic(new ImageView(icon));
+		return item;
 	}
 	
 	@FXML
