@@ -9,14 +9,13 @@ import de.urkallinger.restclient.data.RestDataBase;
 import de.urkallinger.restclient.data.RestDataContainer;
 import de.urkallinger.restclient.data.RestDataType;
 import de.urkallinger.restclient.data.SaveData;
+import de.urkallinger.restclient.dialogs.NameChooser;
 import de.urkallinger.restclient.model.RestDataEntry;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -57,15 +56,13 @@ public class RestDataDialogController {
 		treeTable.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
 			switch(event.getCode()) {
 			case DELETE:
-				RestDataBase entry = getSelectedEntry();
-				if(entry != null) {
+				TreeItem<RestDataEntry> treeItem = treeTable.getSelectionModel().getSelectedItem();
+				if(treeItem != null && treeItem.getValue() != null) {
+					RestDataBase entry = treeItem.getValue().getRestData();
 					SaveData data = DataManager.loadData();
-					// TODO: Funktioniert nicht mehr, da nicht rekursiv
 					data.removeRestData(entry.getId());
 					DataManager.saveData(data);
-					
-					 TreeItem<RestDataEntry> treeItem = treeTable.getSelectionModel().getSelectedItem();
-					 treeItem.getParent().getChildren().remove(treeItem);
+					treeItem.getParent().getChildren().remove(treeItem);
 				}
 				break;
 			default:
@@ -78,17 +75,7 @@ public class RestDataDialogController {
 		MenuItem item = new MenuItem("create new container");
 		item.setOnAction(event -> {
 			
-			TextInputDialog nameChooser = new TextInputDialog();
-			nameChooser.setTitle("Containername");
-			nameChooser.setHeaderText("Choose a name for the new container.");
-			
-			Scene scene = nameChooser.getDialogPane().getScene();
-			scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
-			
-			Image icon = new Image(getClass().getResourceAsStream("/images/AppIcon.png"));
-			Stage stage = (Stage) scene.getWindow();
-			stage.getIcons().add(icon);
-			
+			NameChooser nameChooser = new NameChooser("Containername", "Choose a name for the new container.");
 			Optional<String> result = nameChooser.showAndWait();
 			
 			RestDataEntry entry;
@@ -101,7 +88,7 @@ public class RestDataDialogController {
 			}
 			
 			TreeItem<RestDataEntry> treeItem = new TreeItem<>(entry);
-			icon = new Image(getClass().getResourceAsStream("/images/container.png"));
+			Image icon = new Image(getClass().getResourceAsStream("/images/container.png"));
 			treeItem.setGraphic(new ImageView(icon));
 			TreeItem<RestDataEntry> selection = treeTable.getSelectionModel().getSelectedItem();
 			

@@ -60,6 +60,17 @@ public class SaveData {
 	}
 
 	public void removeRestData(UUID id) {
-		restData.remove(id);
+		removeRecursiv(restData, id);
+	}
+	
+	private void removeRecursiv(Map<UUID, RestDataBase> map, UUID id) {
+		if(map.containsKey(id)) {
+			map.remove(id);
+		} else {
+			map.values().stream()
+				.filter(rd -> rd.getType() == RestDataType.CONTAINER)
+				.map(rd -> (RestDataContainer) rd)
+				.forEach(container -> removeRecursiv(container.getChildrenMap(), id));
+		}
 	}
 }

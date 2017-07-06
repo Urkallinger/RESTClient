@@ -20,11 +20,11 @@ import de.urkallinger.restclient.data.RestDataBase;
 import de.urkallinger.restclient.data.RestDataContainer;
 import de.urkallinger.restclient.data.RestDataType;
 import de.urkallinger.restclient.data.SaveData;
+import de.urkallinger.restclient.dialogs.NameChooser;
 import de.urkallinger.restclient.dialogs.RestDataDialog;
 import de.urkallinger.restclient.utils.DragResizer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -34,7 +34,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -175,17 +174,7 @@ public class ConfigurationController {
 				return;
 			}
 			
-			TextInputDialog nameChooser = new TextInputDialog();
-			nameChooser.setTitle("Configuration name");
-			nameChooser.setHeaderText("Choose a name for the new configuration.");
-			
-			Scene scene = nameChooser.getDialogPane().getScene();
-			scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
-			
-			Image icon = new Image(getClass().getResourceAsStream("/images/AppIcon.png"));
-			Stage stage = (Stage) scene.getWindow();
-			stage.getIcons().add(icon);
-			
+			NameChooser nameChooser = new NameChooser("Configuration name", "Choose a name for the new configuration.");
 			Optional<String> result = nameChooser.showAndWait();
 			if (!result.isPresent()){
 			    // cancel clicked
