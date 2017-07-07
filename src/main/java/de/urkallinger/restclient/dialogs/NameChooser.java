@@ -8,8 +8,8 @@ import javafx.stage.Stage;
 public class NameChooser extends TextInputDialog {
 
 	public NameChooser(String title, String text) {
-		this.setTitle("Configuration name");
-		this.setHeaderText("Choose a name for the new configuration.");
+		this.setTitle(title);
+		this.setHeaderText(text);
 		
 		Scene scene = this.getDialogPane().getScene();
 		scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());

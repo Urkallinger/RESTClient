@@ -131,17 +131,23 @@ public class RestDataDialogController {
 	
 	private void buildTree(Collection<RestDataBase> data, TreeItem<RestDataEntry> parent) {
 		// Containerknoten erstellen
-		data.stream().filter(rd -> rd.getType() == RestDataType.CONTAINER).forEach(container -> {
-			TreeItem<RestDataEntry> item = createTreeItem(container);
-			parent.getChildren().add(item);
-			buildTree(((RestDataContainer) container).getChildren(), item);
-		});
+		data.stream()
+			.filter(rd -> rd.getType() == RestDataType.CONTAINER)
+			.sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
+			.forEach(container -> {
+				TreeItem<RestDataEntry> item = createTreeItem(container);
+				parent.getChildren().add(item);
+				buildTree(((RestDataContainer) container).getChildren(), item);
+			});
 
 		// Blattknoten erstellen
-		data.stream().filter(rd -> rd.getType() == RestDataType.REST_DATA).forEach(rd -> {
-			TreeItem<RestDataEntry> child = createTreeItem(rd);
-			parent.getChildren().add(child);
-		});
+		data.stream()
+			.filter(rd -> rd.getType() == RestDataType.REST_DATA)
+			.sorted((rd1, rd2) -> rd1.getName().compareTo(rd2.getName()))
+			.forEach(rd -> {
+				TreeItem<RestDataEntry> child = createTreeItem(rd);
+				parent.getChildren().add(child);
+			});
 	}
 	
 	public void loadData(Collection<RestDataBase> content) {
