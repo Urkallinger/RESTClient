@@ -73,7 +73,11 @@ public class MainApp extends Application {
 			switch (event.getCode()) {
 			case S:
 				if(!event.isControlDown()) break;
-				configHolder.controller.save(event.isShiftDown());
+				try {
+					configHolder.controller.save(event.isShiftDown());
+				} catch (Exception e) {
+					LOGGER.error(e.getMessage());
+				}
 				break;
 				
 			case O:

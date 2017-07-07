@@ -157,20 +157,14 @@ public class ConfigurationController {
 		headerGrid.addRow(rowCount+1, label, txtName, txtValue, btnDelete);
 	}
 	
-	public void save(boolean saveAsNew) {
-		
-		SaveData saveData = DataManager.loadData();
+	public void save(boolean saveAsNew) throws Exception {
 		
 		if(saveAsNew || data.getName() == null || data.getName().isEmpty()) {
-
-			// TODO: Container anlegen klappt nicht!!
-			
 			RestDataDialog containerChooser = new RestDataDialog();
 			containerChooser.setAllowedType(RestDataType.CONTAINER);
 			containerChooser.setParentStage(parentStage);
-			containerChooser.setContent(saveData.getRestData());
 			containerChooser.showAndWait();
-
+			
 			if (!containerChooser.getResult().isPresent()) {
 				// cancel clicked
 				return;
@@ -183,11 +177,11 @@ public class ConfigurationController {
 				return;
 			}
 
-			RestDataContainer container = (RestDataContainer) containerChooser.getResult().get();
+			RestDataContainer c = (RestDataContainer) containerChooser.getResult().get();
 			String name = result.get();
 			
-			boolean nameTaken = container.getChildren().stream().map(RestDataBase::getName).anyMatch(n -> n.equals(name));
-			if(nameTaken) {
+			boolean isNameTaken = c.getChildren().stream().map(RestDataBase::getName).anyMatch(n -> n.equals(name));
+			if(isNameTaken) {
 				if(!showOverrideDialog(name)) {
 					// do not override
 					return;
@@ -197,10 +191,18 @@ public class ConfigurationController {
 			}
 			
 			data.setName(name);
-			container.addChild(data);
+			
+			SaveData saveData = DataManager.loadData();
+			saveData.addRestData(data, c.getId());
+			DataManager.saveData(saveData);
+		} else {
+			SaveData saveData = DataManager.loadData();
+			if(SaveData.updateRestData(saveData.getRestDataMap(), data)) {
+				DataManager.saveData(saveData);
+			} else {
+				throw new Exception("Could not save configuration. Try save as new configuration (CTRL+SHIFT+S)."); 
+			}
 		}
-		
-		DataManager.saveData(saveData);
 		LOGGER.info(String.format("Configuration \"%s\" successfully saved.", data.getName()));
 	}
 	

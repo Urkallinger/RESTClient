@@ -3,8 +3,10 @@ package de.urkallinger.restclient.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -58,6 +60,10 @@ public class SaveData {
 	public Collection<RestDataBase> getRestData() {
 		return restData.values() != null ? restData.values() : new ArrayList<>();
 	}
+	
+	public Map<UUID, RestDataBase> getRestDataMap() {
+		return restData;
+	}
 
 	public void removeRestData(UUID id) {
 		removeRecursiv(restData, id);
@@ -71,6 +77,25 @@ public class SaveData {
 				.filter(rd -> rd.getType() == RestDataType.CONTAINER)
 				.map(rd -> (RestDataContainer) rd)
 				.forEach(container -> removeRecursiv(container.getChildrenMap(), id));
+		}
+	}
+	
+	public static boolean updateRestData(Map<UUID, RestDataBase> map, RestDataBase data) {
+		if(map.containsKey(data.getId())) {
+			map.put(data.getId(), data);
+			return true;
+		} else {
+			List<RestDataContainer> containers = map.values().stream()
+					.filter(rd -> rd.getType() == RestDataType.CONTAINER)
+					.map(rd -> (RestDataContainer) rd)
+					.collect(Collectors.toList());
+			for(RestDataContainer c : containers) {
+				if(updateRestData(c.getChildrenMap(), data)) {
+					return true;
+				}
+			}
+			
+			return false;
 		}
 	}
 }

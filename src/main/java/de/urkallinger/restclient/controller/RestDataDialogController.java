@@ -108,6 +108,7 @@ public class RestDataDialogController {
 			saveData.addRestData(container);
 			treeTable.getRoot().getChildren().add(treeItem);
 		}
+		
 		DataManager.saveData(saveData);
 	}
 	
