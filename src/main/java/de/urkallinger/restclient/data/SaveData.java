@@ -34,8 +34,8 @@ public class SaveData {
 		restData.getChildrenMap().put(data.getId(), data);
 	}
 
-	public void addRestData(RestDataBase rd, UUID parentId) {
-		walkTree(restData, container -> {
+	public boolean addRestData(RestDataBase rd, UUID parentId) {
+		return walkTree(restData, container -> {
 			if(container.getId().equals(parentId)) {
 				container.getChildrenMap().put(rd.getId(), rd);
 				return true;

@@ -22,13 +22,11 @@ import de.urkallinger.restclient.data.RestDataType;
 import de.urkallinger.restclient.data.SaveData;
 import de.urkallinger.restclient.dialogs.NameChooser;
 import de.urkallinger.restclient.dialogs.RestDataDialog;
+import de.urkallinger.restclient.dialogs.YesNoAlert;
 import de.urkallinger.restclient.utils.DragResizer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -94,26 +92,10 @@ public class ConfigurationController {
 		headerGrid.getChildren().clear();
 	}
 	
-	private boolean showOverrideDialog(String name) {
-		ButtonType yes = new ButtonType("yes", ButtonBar.ButtonData.OK_DONE);
-		ButtonType no = new ButtonType("no", ButtonBar.ButtonData.CANCEL_CLOSE);
-		
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Override saved configuration");
-		alert.setHeaderText(String.format("A configuration with the name \"%s\" already exists.", name));
-		alert.setContentText("Do you want do override it?");
-		alert.getButtonTypes().clear();
-		alert.getButtonTypes().addAll(yes, no);
-		alert.getDialogPane().getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
-		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-		stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/AppIcon.png")));
-		
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.get() == yes){
-			return true;
-		} else {
-			return false;
-		}
+	private Optional<ButtonType> showOverrideDialog(String name) {
+		String headerText = String.format("A configuration with the name \"%s\" already exists.", name);
+		String contentText = "Do you want do override it?"; 
+		return new YesNoAlert(headerText, contentText).showAndWait();
 	}
 	
 	public void setParentStage(Stage parentStage) {
@@ -180,9 +162,13 @@ public class ConfigurationController {
 			RestDataContainer c = (RestDataContainer) containerChooser.getResult().get();
 			String name = result.get();
 			
-			boolean isNameTaken = c.getChildren().stream().map(RestDataBase::getName).anyMatch(n -> n.equals(name));
-			if(isNameTaken) {
-				if(!showOverrideDialog(name)) {
+			Optional<RestDataBase> other = c.getChildren().stream().filter(x -> x.getName().equals(name)).findFirst();
+			
+			if(other.isPresent()) {
+				Optional<ButtonType> override = showOverrideDialog(name);
+				if(override.isPresent() && override.get() == ButtonType.YES) {
+					data.setId(other.get().getId());
+				} else {
 					// do not override
 					return;
 				}
@@ -193,8 +179,12 @@ public class ConfigurationController {
 			data.setName(name);
 			
 			SaveData saveData = DataManager.loadData();
-			saveData.addRestData(data, c.getId());
-			DataManager.saveData(saveData);
+			if(saveData.addRestData(data, c.getId())) {
+				DataManager.saveData(saveData);
+			} else {
+				throw new Exception("Could not save configuration.");
+			}
+			
 		} else {
 			SaveData saveData = DataManager.loadData();
 			if(saveData.updateRestData(data)) {

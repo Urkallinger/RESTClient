@@ -16,10 +16,12 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class RestDataDialogController {
@@ -66,6 +68,19 @@ public class RestDataDialogController {
 			default:
 				break;
 			}
+		});
+		
+		// klick auf das selektierte elemente hebt die selektierung auf
+		treeTable.setRowFactory(p -> {
+			final TreeTableRow<RestDataEntry> row = new TreeTableRow<>();
+			row.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+				final int index = row.getIndex();
+				if (treeTable.getSelectionModel().getSelectedIndex() == index) {
+					treeTable.getSelectionModel().clearSelection();
+					event.consume();
+				}
+			});
+			return row;
 		});
 	}
 	
