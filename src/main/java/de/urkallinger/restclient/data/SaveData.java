@@ -1,10 +1,6 @@
 package de.urkallinger.restclient.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,79 +19,67 @@ public class SaveData {
 	@XmlTransient
 	private static final Logger LOGGER = LoggerFactory.getLogger(SaveData.class);
 	
-	private Map<UUID, RestDataBase> restData;
+	private RestDataContainer restData;
 
 	public SaveData() {
-		this.restData = new HashMap<>();
+		this.restData = new RestDataContainer();
+		this.restData.setName("root");
 	}
 
-	public void addRestData(RestDataBase data) {
-		addRestData(data, null);
-	}
-
-	public void addRestData(RestDataBase data, UUID parent) {
-		if (parent != null) {
-			addRecursiv(restData, parent, data);
-		} else {
-			restData.put(data.getId(), data);
-		}
-	}
-	
-	private void addRecursiv(Map<UUID, RestDataBase> map, UUID parent, RestDataBase data) {
-		if(map.containsKey(parent)) {
-			if(map.get(parent).getType() == RestDataType.CONTAINER) {
-				((RestDataContainer) map.get(parent)).addChild(data);
-			} else {
-				String pn = map.get(parent).getName();
-				LOGGER.error("Can not add %s to %s because %s is not a container.", data.getName(), pn, pn);
-			}
-		} else {
-			map.values().stream()
-				.filter(rd -> rd.getType() == RestDataType.CONTAINER)
-				.map(rd -> (RestDataContainer) rd)
-				.forEach(container -> addRecursiv(container.getChildrenMap(), parent, data));
-		}
-	}
-
-	public Collection<RestDataBase> getRestData() {
-		return restData.values() != null ? restData.values() : new ArrayList<>();
-	}
-	
-	public Map<UUID, RestDataBase> getRestDataMap() {
+	public RestDataContainer getRestData() {
 		return restData;
 	}
+	
+	public void addRestData(RestDataBase data) {
+		restData.getChildrenMap().put(data.getId(), data);
+	}
 
-	public void removeRestData(UUID id) {
-		removeRecursiv(restData, id);
-	}
-	
-	private void removeRecursiv(Map<UUID, RestDataBase> map, UUID id) {
-		if(map.containsKey(id)) {
-			map.remove(id);
-		} else {
-			map.values().stream()
-				.filter(rd -> rd.getType() == RestDataType.CONTAINER)
-				.map(rd -> (RestDataContainer) rd)
-				.forEach(container -> removeRecursiv(container.getChildrenMap(), id));
-		}
-	}
-	
-	public static boolean updateRestData(Map<UUID, RestDataBase> map, RestDataBase data) {
-		if(map.containsKey(data.getId())) {
-			map.put(data.getId(), data);
-			return true;
-		} else {
-			List<RestDataContainer> containers = map.values().stream()
-					.filter(rd -> rd.getType() == RestDataType.CONTAINER)
-					.map(rd -> (RestDataContainer) rd)
-					.collect(Collectors.toList());
-			for(RestDataContainer c : containers) {
-				if(updateRestData(c.getChildrenMap(), data)) {
-					return true;
-				}
+	public void addRestData(RestDataBase rd, UUID parentId) {
+		walkTree(restData, container -> {
+			if(container.getId().equals(parentId)) {
+				container.getChildrenMap().put(rd.getId(), rd);
+				return true;
 			}
-			
 			return false;
+		});
+	}
+
+	public boolean removeRestData(UUID id) {
+		return walkTree(restData, container ->  {
+			if(container.getChildrenMap().containsKey(id)) {
+				container.getChildrenMap().remove(id);
+				return true;
+			}
+			return false;
+		});
+	}
+	
+	public boolean updateRestData(RestDataBase rd) {
+		return walkTree(restData, container ->  {
+			if(container.getChildrenMap().containsKey(rd.getId())) {
+				container.getChildrenMap().put(rd.getId(), rd);
+				return true;
+			}
+			return false;
+		});
+	}
+	
+	public static boolean walkTree(RestDataContainer parent, RecursionCallback rc) {
+		if(rc.handle(parent)) {
+			return true;
 		}
+		
+		List<RestDataContainer> containers = parent.getChildren().stream()
+				.filter(child -> child.getType() == RestDataType.CONTAINER)
+				.map(child -> (RestDataContainer) child)
+				.collect(Collectors.toList());
+
+		for (RestDataContainer c : containers) {
+			if (walkTree(c, rc)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

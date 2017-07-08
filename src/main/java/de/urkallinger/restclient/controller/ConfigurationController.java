@@ -197,7 +197,7 @@ public class ConfigurationController {
 			DataManager.saveData(saveData);
 		} else {
 			SaveData saveData = DataManager.loadData();
-			if(SaveData.updateRestData(saveData.getRestDataMap(), data)) {
+			if(saveData.updateRestData(data)) {
 				DataManager.saveData(saveData);
 			} else {
 				throw new Exception("Could not save configuration. Try save as new configuration (CTRL+SHIFT+S)."); 

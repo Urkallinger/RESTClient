@@ -1,6 +1,5 @@
 package de.urkallinger.restclient.controller;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import de.urkallinger.restclient.data.DataManager;
@@ -129,19 +128,19 @@ public class RestDataDialogController {
 		allowedType = type;
 	}
 	
-	private void buildTree(Collection<RestDataBase> data, TreeItem<RestDataEntry> parent) {
+	private void buildTree(RestDataContainer content, TreeItem<RestDataEntry> parent) {
 		// Containerknoten erstellen
-		data.stream()
+		content.getChildren().stream()
 			.filter(rd -> rd.getType() == RestDataType.CONTAINER)
 			.sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
 			.forEach(container -> {
 				TreeItem<RestDataEntry> item = createTreeItem(container);
 				parent.getChildren().add(item);
-				buildTree(((RestDataContainer) container).getChildren(), item);
+				buildTree(((RestDataContainer) container), item);
 			});
 
 		// Blattknoten erstellen
-		data.stream()
+		content.getChildren().stream()
 			.filter(rd -> rd.getType() == RestDataType.REST_DATA)
 			.sorted((rd1, rd2) -> rd1.getName().compareTo(rd2.getName()))
 			.forEach(rd -> {
@@ -150,8 +149,8 @@ public class RestDataDialogController {
 			});
 	}
 	
-	public void loadData(Collection<RestDataBase> content) {
-		TreeItem<RestDataEntry> root = new TreeItem<>();
+	public void loadData(RestDataContainer content) {
+		TreeItem<RestDataEntry> root = new TreeItem<>(new RestDataEntry(content.getName(), content));
 		buildTree(content, root);
 		
 		treeTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

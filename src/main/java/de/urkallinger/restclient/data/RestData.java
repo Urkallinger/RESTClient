@@ -3,7 +3,6 @@ package de.urkallinger.restclient.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -31,7 +30,7 @@ public class RestData extends RestDataBase {
 		return host;
 	}
 
-	@XmlAttribute(name = "host")
+	@XmlElement(name = "host")
 	public String getHost() {
 		return host.get();
 	}
@@ -44,7 +43,7 @@ public class RestData extends RestDataBase {
 		return path;
 	}
 	
-	@XmlAttribute(name = "path")
+	@XmlElement(name = "path")
 	public String getPath() {
 		return path.get();
 	}
@@ -57,7 +56,7 @@ public class RestData extends RestDataBase {
 		return httpMethod;
 	}
 	
-	@XmlAttribute(name = "httpMethod")
+	@XmlElement(name = "httpMethod")
 	public String getHttpMethod() {
 		return httpMethod.get();
 	}
@@ -70,7 +69,7 @@ public class RestData extends RestDataBase {
 		return payload;
 	}
 	
-	@XmlAttribute(name = "payload")
+	@XmlElement(name = "payload")
 	public String getPayload() {
 		return payload.get();
 	}

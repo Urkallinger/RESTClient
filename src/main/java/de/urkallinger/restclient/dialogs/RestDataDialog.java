@@ -1,7 +1,6 @@
 package de.urkallinger.restclient.dialogs;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import de.urkallinger.restclient.controller.RestDataDialogController;
 import de.urkallinger.restclient.data.DataManager;
 import de.urkallinger.restclient.data.RestDataBase;
+import de.urkallinger.restclient.data.RestDataContainer;
 import de.urkallinger.restclient.data.RestDataType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -27,7 +27,7 @@ public class RestDataDialog {
 	private RestDataDialogController controller;
 	private Optional<RestDataBase> result = Optional.empty();
 	private RestDataType allowedType = RestDataType.REST_DATA;
-	private Collection<RestDataBase> content;
+	private RestDataContainer content;
 	
 	private Stage stage;
 	
@@ -43,7 +43,7 @@ public class RestDataDialog {
 		allowedType = type;
 	}
 	
-	public void setContent(Collection<RestDataBase> content) {
+	public void setContent(RestDataContainer content) {
 		this.content = content;
 	}
 	
