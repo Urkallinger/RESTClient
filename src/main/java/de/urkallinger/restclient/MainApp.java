@@ -75,6 +75,8 @@ public class MainApp extends Application {
 				if(!event.isControlDown()) break;
 				try {
 					configHolder.controller.save(event.isShiftDown());
+					setTitle(configHolder.controller.getRestData());
+					
 				} catch (Exception e) {
 					LOGGER.error(e.getMessage());
 				}
@@ -90,6 +92,7 @@ public class MainApp extends Application {
 				openDialog.getResult().ifPresent(data -> {
 					responseHolder.controller.clearContent();
 					configHolder.controller.load((RestData) data);
+					setTitle((RestData) data);
 				});
 				break;
 				
@@ -118,6 +121,11 @@ public class MainApp extends Application {
 			default: break;
 			}
 		});
+	}
+	
+	private void setTitle(RestData data) {
+		String title = "RESTClient" + " - " + configHolder.controller.getRestData().getName();
+		stage.setTitle(title);
 	}
 	
 	private void sendRequest() {
