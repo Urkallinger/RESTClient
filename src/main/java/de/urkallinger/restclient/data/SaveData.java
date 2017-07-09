@@ -1,5 +1,6 @@
 package de.urkallinger.restclient.data;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,7 +21,8 @@ public class SaveData {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SaveData.class);
 	
 	private RestDataContainer restData;
-
+	private HashMap<String, Property> properties;
+	
 	public SaveData() {
 		this.restData = new RestDataContainer();
 		this.restData.setName("root");
@@ -30,6 +32,10 @@ public class SaveData {
 		return restData;
 	}
 	
+	public HashMap<String, Property> getProperties() {
+		return properties;
+	}
+
 	public void addRestData(RestDataBase data) {
 		restData.getChildrenMap().put(data.getId(), data);
 	}

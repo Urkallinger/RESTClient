@@ -12,6 +12,7 @@ import de.urkallinger.restclient.controller.ResponseController;
 import de.urkallinger.restclient.data.DataManager;
 import de.urkallinger.restclient.data.RestData;
 import de.urkallinger.restclient.data.RestDataType;
+import de.urkallinger.restclient.dialogs.PropertiesDialog;
 import de.urkallinger.restclient.dialogs.RestDataDialog;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -106,16 +107,21 @@ public class MainApp extends Application {
 				if(!event.isControlDown()) break;
 				configHolder.controller.formatPayload();
 				break;
+
+			case H:
+				if(!event.isAltDown()) break;
+				configHolder.controller.addHeader();
+				break;
+				
+			case P:
+				if(!event.isControlDown()) break;
+				PropertiesDialog propDialog = new PropertiesDialog();
+				propDialog.showAndWait();
 				
 			case ENTER:
 				if(!event.isAltDown()) break;
 				sendRequest();
 				event.consume();
-				break;
-				
-			case H:
-				if(!event.isAltDown()) break;
-				configHolder.controller.addHeader();
 				break;
 				
 			default: break;
