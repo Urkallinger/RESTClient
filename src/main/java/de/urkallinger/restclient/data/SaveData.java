@@ -2,6 +2,7 @@ package de.urkallinger.restclient.data;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,18 +22,19 @@ public class SaveData {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SaveData.class);
 	
 	private RestDataContainer restData;
-	private HashMap<String, Property> properties;
+	private Map<String, Property> properties;
 	
 	public SaveData() {
 		this.restData = new RestDataContainer();
 		this.restData.setName("root");
+		this.properties = new HashMap<>();
 	}
 
 	public RestDataContainer getRestData() {
 		return restData;
 	}
 	
-	public HashMap<String, Property> getProperties() {
+	public Map<String, Property> getProperties() {
 		return properties;
 	}
 

@@ -10,10 +10,13 @@ import de.urkallinger.restclient.controller.ConfigurationController;
 import de.urkallinger.restclient.controller.ConsoleController;
 import de.urkallinger.restclient.controller.ResponseController;
 import de.urkallinger.restclient.data.DataManager;
+import de.urkallinger.restclient.data.Property;
 import de.urkallinger.restclient.data.RestData;
 import de.urkallinger.restclient.data.RestDataType;
+import de.urkallinger.restclient.data.SaveData;
 import de.urkallinger.restclient.dialogs.PropertiesDialog;
 import de.urkallinger.restclient.dialogs.RestDataDialog;
+import de.urkallinger.restclient.utils.WebUtils;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -48,6 +51,8 @@ public class MainApp extends Application {
 			LOGGER.error(e.getMessage(), e);
 		}
 		
+		loadConstantProperties();
+		
 		this.stage = primaryStage;
 		this.stage.setTitle("RESTClient");
 
@@ -56,13 +61,13 @@ public class MainApp extends Application {
 
 
 		BorderPane rootLayout = initRootLayout();
-		configHolder = initConfiguration();
 		consoleHolder = initConsole();
+		configHolder = initConfiguration();
 		responseHolder = initResponse();
 		
 		rootLayout.setTop(configHolder.pane);
-		rootLayout.setBottom(consoleHolder.pane);
 		rootLayout.setCenter(responseHolder.pane);
+		rootLayout.setBottom(consoleHolder.pane);
 		
 		scene = new Scene(rootLayout);
 		scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
@@ -98,7 +103,7 @@ public class MainApp extends Application {
 				break;
 				
 			case C:
-				if(!event.isAltDown()) break;
+				if(!event.isControlDown() && !event.isShiftDown()) break;
 				consoleHolder.controller.clear();
 				event.consume();
 				break;
@@ -109,7 +114,7 @@ public class MainApp extends Application {
 				break;
 
 			case H:
-				if(!event.isAltDown()) break;
+				if(!event.isControlDown()) break;
 				configHolder.controller.addHeader();
 				break;
 				
@@ -119,7 +124,7 @@ public class MainApp extends Application {
 				propDialog.showAndWait();
 				
 			case ENTER:
-				if(!event.isAltDown()) break;
+				if(!event.isControlDown()) break;
 				sendRequest();
 				event.consume();
 				break;
@@ -127,6 +132,21 @@ public class MainApp extends Application {
 			default: break;
 			}
 		});
+	}
+	
+	private void loadConstantProperties() {
+		SaveData saveData = DataManager.loadData();
+		try {
+			Property prop = new Property();
+			prop.setName("PublicIP");
+			prop.setValue(WebUtils.getPublicIp());
+			prop.setEditable(false);
+			saveData.getProperties().put(prop.getName(), prop);
+		} catch (Exception e) {
+			LOGGER.error("Failed to load public IP.");
+		}
+		DataManager.saveData(saveData);
+		
 	}
 	
 	private void setTitle(RestData data) {

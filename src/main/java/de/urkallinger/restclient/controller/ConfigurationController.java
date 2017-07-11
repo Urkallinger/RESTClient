@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ import de.urkallinger.restclient.data.SaveData;
 import de.urkallinger.restclient.dialogs.NameChooser;
 import de.urkallinger.restclient.dialogs.RestDataDialog;
 import de.urkallinger.restclient.dialogs.YesNoAlert;
+import de.urkallinger.restclient.utils.Constants;
 import de.urkallinger.restclient.utils.DragResizer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -69,7 +71,7 @@ public class ConfigurationController {
 				String s = StringUtils.repeat(' ', 4);
 	            taPayload.insertText(taPayload.getCaretPosition(), s);
 	            event.consume();
-				break;
+			break;
 				
 			default:
 				break;
@@ -118,6 +120,7 @@ public class ConfigurationController {
 		final TextField txtName = new TextField();
 		txtName.setPromptText("name");
 		txtName.textProperty().bindBidirectional(header.getNameProperty());
+		TextFields.bindAutoCompletion(txtName, Constants.HTTP_HEADER);
 		
 		final TextField txtValue = new TextField();
 		txtValue.setPromptText("value");

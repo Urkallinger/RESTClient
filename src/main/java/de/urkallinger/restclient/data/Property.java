@@ -10,6 +10,7 @@ import javafx.beans.property.StringProperty;
 public class Property {
 	StringProperty name;
 	StringProperty value;
+	boolean editable = true;
 	
 	public Property() {
 		name = new SimpleStringProperty("");
@@ -40,5 +41,13 @@ public class Property {
 
 	public final void setValue(final String value) {
 		this.valueProperty().set(value);
+	}
+
+	public boolean isEditable() {
+		return editable;
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 }

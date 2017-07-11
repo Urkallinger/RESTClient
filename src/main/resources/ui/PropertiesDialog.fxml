@@ -8,46 +8,49 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-
-<AnchorPane
-	fx:controller="de.urkallinger.restclient.controller.PropertiesDialogController"
-	xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111">
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.urkallinger.restclient.controller.PropertiesDialogController">
 	<children>
-		<TableView fx:id="table" editable="true" AnchorPane.bottomAnchor="85.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-			AnchorPane.topAnchor="0.0">
-			<columns>
-				<TableColumn fx:id="colName" prefWidth="75.0" text="Name" />
-				<TableColumn fx:id="colValue" prefWidth="75.0" text="Value" />
-			</columns>
-			<columnResizePolicy>
-				<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-			</columnResizePolicy>
-		</TableView>
-		<HBox alignment="CENTER" prefHeight="40.0"
-			AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0"
-			AnchorPane.rightAnchor="0.0">
-			<children>
-				<TextField fx:id="txtName" promptText="Name">
-					<HBox.margin>
-						<Insets right="10.0" />
-					</HBox.margin>
-				</TextField>
-				<TextField fx:id="txtValue" promptText="Value">
-					<HBox.margin>
-						<Insets right="10.0" />
-					</HBox.margin>
-				</TextField>
-				<Button fx:id="btnAdd" onAction="#handleAdd" mnemonicParsing="false" />
-			</children>
-		</HBox>
-		<ButtonBar prefHeight="40.0" AnchorPane.bottomAnchor="0.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-			<buttons>
-				<Button fx:id="btnOk" onAction="#handleOk" mnemonicParsing="false" text="OK" />
-			</buttons>
-		</ButtonBar>
+      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+      		<TableView fx:id="table" editable="true">
+      			<columns>
+      				<TableColumn fx:id="colName" prefWidth="75.0" text="Name" />
+      				<TableColumn fx:id="colValue" prefWidth="75.0" text="Value" />
+      			</columns>
+      			<columnResizePolicy>
+      				<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+      			</columnResizePolicy>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+      		</TableView>
+      		<HBox alignment="CENTER">
+      			<children>
+      				<TextField fx:id="txtName" promptText="Name">
+      					<HBox.margin>
+      						<Insets right="10.0" />
+      					</HBox.margin>
+      				</TextField>
+      				<TextField fx:id="txtValue" promptText="Value">
+      					<HBox.margin>
+      						<Insets right="10.0" />
+      					</HBox.margin>
+      				</TextField>
+      				<Button fx:id="btnAdd" mnemonicParsing="false" onAction="#handleAdd" />
+      			</children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+      		</HBox>
+      		<ButtonBar>
+      			<buttons>
+      				<Button fx:id="btnOk" mnemonicParsing="false" onAction="#handleOk" text="OK" />
+      			</buttons>
+      		</ButtonBar>
+         </children>
+      </VBox>
 	</children>
 	<padding>
 		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
