@@ -1,6 +1,7 @@
 package de.urkallinger.restclient;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -119,9 +121,17 @@ public class MainApp extends Application {
 				break;
 				
 			case P:
-				if(!event.isControlDown()) break;
+				if (!event.isControlDown()) break;
 				PropertiesDialog propDialog = new PropertiesDialog();
-				propDialog.showAndWait();
+				Optional<Property> result = propDialog.showAndWait();
+
+				if (result.isPresent() && scene.focusOwnerProperty().get() instanceof TextInputControl) {
+					TextInputControl txt = (TextInputControl) scene.focusOwnerProperty().get();
+					int pos = txt.getCaretPosition();
+					String var = String.format("{%s}", result.get().getName());
+					txt.insertText(pos, var);
+				}
+				break;
 				
 			case ENTER:
 				if(!event.isControlDown()) break;

@@ -1,11 +1,13 @@
 package de.urkallinger.restclient.dialogs;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.urkallinger.restclient.controller.PropertiesDialogController;
+import de.urkallinger.restclient.data.Property;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -26,7 +28,7 @@ public class PropertiesDialog {
 		this.parentStage = parentStage;
 	}
 
-	public void showAndWait() {
+	public Optional<Property> showAndWait() {
 		try {
 			stage = new Stage();
 			stage.setTitle("RESTClient-Properties");
@@ -50,9 +52,12 @@ public class PropertiesDialog {
 			addKeyFilter(scene);
 			stage.showAndWait();
 
+			return controller.getSelection();
 		} catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
+		
+		return Optional.empty();
 	}
 	
 	private void addKeyFilter(Scene scene) {
@@ -60,10 +65,13 @@ public class PropertiesDialog {
 			switch (event.getCode()) {
 			case ENTER:
 				controller.handleOk();
+				event.consume();
 				break;
 			case ESCAPE:
-				stage.close();
+				controller.handleCancel();
+				event.consume();
 				break;
+
 			default: break;
 			}
 		});
