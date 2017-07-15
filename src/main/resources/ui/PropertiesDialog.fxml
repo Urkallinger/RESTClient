@@ -17,7 +17,7 @@
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<TableView fx:id="table" editable="true" onKeyReleased="#handleTableKeyEvent">
+				<TableView fx:id="table" editable="true" onKeyReleased="#handleTableKeyEvent" onInputMethodTextChanged="#handleTableValueChanged">
 					<columns>
 						<TableColumn fx:id="colName" prefWidth="75.0" text="Name" />
 						<TableColumn fx:id="colValue" prefWidth="75.0" text="Value" />

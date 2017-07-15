@@ -13,11 +13,13 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
@@ -55,11 +57,54 @@ public class PropertiesDialogController {
 		colName.setCellFactory(TextFieldTableCell.<Property>forTableColumn());
 		colValue.setCellFactory(TextFieldTableCell.<Property>forTableColumn());
 		
+		colName.setOnEditCommit(event -> {
+				String oldName = event.getOldValue();
+				Property p = event.getRowValue();
+
+				p.setName(event.getNewValue());
+				SaveData saveData = DataManager.loadData();
+				saveData.getProperties().remove(oldName);
+				saveData.getProperties().put(p.getName(), p);
+				DataManager.saveData(saveData);
+		});
+
+		colValue.setOnEditCommit(event -> {
+			Property p = event.getRowValue();
+			p.setValue(event.getNewValue());
+
+			SaveData saveData = DataManager.loadData();
+			saveData.getProperties().put(p.getName(), p);
+			DataManager.saveData(saveData);
+		});
+		
+		table.setRowFactory(tableView -> {
+			TableRow<Property> row = new TableRow<Property>() {
+				@Override
+                protected void updateItem(Property item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item != null || !empty) {
+                    	disableProperty().bind(item.sysConstProperty());
+                    	
+                    	if(item.isSysConst()) {
+                    		setStyle("-fx-background-color: lightgreen;");
+                    	}
+                    }
+                }
+			};
+			return row;
+		});
+		
 		Map<String, Property> properties = DataManager.loadData().getProperties();
 		
 		properties.values().stream()
-			.sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
-			.forEach(p -> table.getItems().add(p));
+		.sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+		.filter(p -> p.isSysConst())
+		.forEach(p -> table.getItems().add(p));
+		
+		properties.values().stream()
+		.sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+		.filter(p -> !p.isSysConst())
+		.forEach(p -> table.getItems().add(p));
 		
 		Platform.runLater(() -> setFocusOnTable());
 	}
@@ -120,6 +165,11 @@ public class PropertiesDialogController {
 		default:
 			break;
 		}
+	}
+	
+	@FXML
+	public void handleTableValueChanged(InputMethodEvent event) {
+		LOGGER.info("super");
 	}
 	
 	public Optional<Property> getSelection() {

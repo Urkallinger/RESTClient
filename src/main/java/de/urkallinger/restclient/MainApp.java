@@ -150,7 +150,7 @@ public class MainApp extends Application {
 			Property prop = new Property();
 			prop.setName("PublicIP");
 			prop.setValue(WebUtils.getPublicIp());
-			prop.setEditable(false);
+			prop.setSysConst(true);
 			saveData.getProperties().put(prop.getName(), prop);
 		} catch (Exception e) {
 			LOGGER.error("Failed to load public IP.");

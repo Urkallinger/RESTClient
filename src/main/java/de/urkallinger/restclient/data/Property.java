@@ -3,6 +3,8 @@ package de.urkallinger.restclient.data;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -10,11 +12,12 @@ import javafx.beans.property.StringProperty;
 public class Property {
 	StringProperty name;
 	StringProperty value;
-	boolean editable = true;
+	BooleanProperty sysConst;
 	
 	public Property() {
 		name = new SimpleStringProperty("");
 		value = new SimpleStringProperty("");
+		sysConst = new SimpleBooleanProperty(false);
 	}
 
 	public final StringProperty nameProperty() {
@@ -43,11 +46,15 @@ public class Property {
 		this.valueProperty().set(value);
 	}
 
-	public boolean isEditable() {
-		return editable;
+	public final BooleanProperty sysConstProperty() {
+		return this.sysConst;
 	}
-
-	public void setEditable(boolean editable) {
-		this.editable = editable;
+	
+	public final boolean isSysConst() {
+		return this.sysConstProperty().get();
+	}
+	
+	public final void setSysConst(final boolean sysConst) {
+		this.sysConstProperty().set(sysConst);
 	}
 }

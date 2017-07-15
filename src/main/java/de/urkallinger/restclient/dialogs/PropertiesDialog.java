@@ -64,6 +64,7 @@ public class PropertiesDialog {
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			switch (event.getCode()) {
 			case ENTER:
+				if(!event.isControlDown()) break;
 				controller.handleOk();
 				event.consume();
 				break;
