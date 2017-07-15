@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import de.urkallinger.restclient.data.DataManager;
 import de.urkallinger.restclient.data.Property;
 import de.urkallinger.restclient.data.SaveData;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
@@ -56,7 +57,11 @@ public class PropertiesDialogController {
 		
 		Map<String, Property> properties = DataManager.loadData().getProperties();
 		
-		properties.forEach((k, v) -> table.getItems().add(v));
+		properties.values().stream()
+			.sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+			.forEach(p -> table.getItems().add(p));
+		
+		Platform.runLater(() -> setFocusOnTable());
 	}
 	
 	@FXML
@@ -75,11 +80,16 @@ public class PropertiesDialogController {
 		prop.setValue(txtValue.getText());
 		
 		SaveData saveData = DataManager.loadData();
-		saveData.getProperties().put(prop.getName(), prop);
-		DataManager.saveData(saveData);
-		
-		table.getItems().add(prop);
-		LOGGER.info(String.format("new property added (%s: %s)", prop.getName(), prop.getValue()));
+		if(!saveData.getProperties().containsKey(prop.getName())) {
+			saveData.getProperties().put(prop.getName(), prop);
+			DataManager.saveData(saveData);
+			table.getItems().add(prop);
+			LOGGER.info(String.format("new property added (%s: %s)", prop.getName(), prop.getValue()));
+		} else {
+			String msg = String.format("Property \"%s\" already exists. "
+					+ "Edit the value of the existing property in the table or choose another name.",  prop.getName());
+			LOGGER.error(msg);
+		}
 	}
 	
 	@FXML
@@ -114,5 +124,11 @@ public class PropertiesDialogController {
 	
 	public Optional<Property> getSelection() {
 		return selection;
+	}
+	
+	private void setFocusOnTable() {
+		table.getSelectionModel().select(0);
+		table.getFocusModel().focus(0);
+		table.requestFocus();
 	}
 }
