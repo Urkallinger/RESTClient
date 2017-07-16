@@ -40,15 +40,15 @@ public class DataManager {
 		return config;
 	}
 	
-	public static void saveData(SaveData cfg) {
-		File cfgFile = new File(CONFIG_XML);
+	public static void saveData(SaveData saveData) {
+		File saveDataFile = new File(CONFIG_XML);
 		try {
-			if(!cfgFile.exists()) cfgFile.createNewFile();
+			if(!saveDataFile.exists()) saveDataFile.createNewFile();
 			
 			JAXBContext context = JAXBContext.newInstance(SaveData.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			m.marshal(cfg, cfgFile);
+			m.marshal(saveData, saveDataFile);
 		} catch (JAXBException | IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}

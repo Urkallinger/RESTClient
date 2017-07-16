@@ -17,14 +17,13 @@
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<TableView fx:id="table" editable="true" onKeyReleased="#handleTableKeyEvent" onInputMethodTextChanged="#handleTableValueChanged">
+				<TableView fx:id="table" editable="true" onKeyReleased="#handleTableKeyEvent"
+					onMouseClicked="#handleTableMouseClick">
 					<columns>
+						<TableColumn fx:id="colIcon" prefWidth="24.0" />
 						<TableColumn fx:id="colName" prefWidth="75.0" text="Name" />
 						<TableColumn fx:id="colValue" prefWidth="75.0" text="Value" />
 					</columns>
-					<columnResizePolicy>
-						<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-					</columnResizePolicy>
 					<VBox.margin>
 						<Insets bottom="10.0" />
 					</VBox.margin>
@@ -41,7 +40,7 @@
 								<Insets right="10.0" />
 							</HBox.margin>
 						</TextField>
-						<Button fx:id="btnAdd" mnemonicParsing="false" onAction="#handleAdd" />
+						<Button fx:id="btnAdd" mnemonicParsing="false" />
 					</children>
 					<VBox.margin>
 						<Insets bottom="40.0" />

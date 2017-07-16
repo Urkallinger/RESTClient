@@ -69,8 +69,10 @@ public class PropertiesDialog {
 				event.consume();
 				break;
 			case ESCAPE:
-				controller.handleCancel();
-				event.consume();
+				if(!controller.isEditing()) {
+					controller.handleCancel();
+					event.consume();
+				}
 				break;
 
 			default: break;
