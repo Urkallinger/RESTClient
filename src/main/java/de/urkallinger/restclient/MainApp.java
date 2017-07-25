@@ -172,10 +172,12 @@ public class MainApp extends Application {
 			public void onResponse(Call call, Response response) throws IOException {
 				String content = response.body().string();
 				Platform.runLater(() -> responseHolder.controller.setText(content));
+				String msg = String.format("Response: %d - %s", response.code(), response.message());
+				
 				if(response.isSuccessful()) {
-					LOGGER.info(String.format("Response: %d - %s", response.code(), response.message()));
+					LOGGER.info(msg);
 				} else {
-					LOGGER.warn(String.format("Response: %d - %s", response.code(), response.message()));
+					LOGGER.warn(msg);
 				}
 				response.body().close();
 			}
