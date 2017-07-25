@@ -41,7 +41,7 @@ public class PropertiesDialogController {
 	@FXML
 	TextField txtValue = new TextField();
 	@FXML
-	Button btnAdd = new Button();
+	Button btnCommit = new Button();
 	@FXML
 	Button btnOk = new Button();
 	@FXML
@@ -62,8 +62,8 @@ public class PropertiesDialogController {
 		
 		addPropertyHandler = getAddPropertyEvent();
 		
-		btnAdd.setGraphic(new ImageView(add));
-		btnAdd.setOnAction(addPropertyHandler);
+		btnCommit.setGraphic(new ImageView(add));
+		btnCommit.setOnAction(addPropertyHandler);
 		
 		colIcon.setCellValueFactory(cellData -> cellData.getValue().sysConstProperty());
 		colName.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
@@ -79,13 +79,12 @@ public class PropertiesDialogController {
 			};
 		});
 		
-		colIcon.prefWidthProperty().bind(table.widthProperty().multiply(0.07));
+		colIcon.setPrefWidth(35.0);
 		colName.prefWidthProperty().bind(table.widthProperty().multiply(0.46));
 		colValue.prefWidthProperty().bind(table.widthProperty().multiply(0.46));
 
 		addTableData();
-		
-		Platform.runLater(() -> setFocusOnTable());
+		setFocusOnTable();
 	}
 	
 	@FXML
@@ -100,31 +99,43 @@ public class PropertiesDialogController {
 	}
 	
 	@FXML
+	public void handleEditKeyInput(KeyEvent event) {
+		switch (event.getCode()) {
+		case ENTER:
+			btnCommit.fire();
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	@FXML
 	public void handleTableKeyEvent(KeyEvent event) {
 		Optional<Property> item;
 		switch (event.getCode()) {
 		case DELETE:
 			item = Optional.ofNullable(table.getSelectionModel().getSelectedItem());
 			item.ifPresent(property -> {
+				if(property.isSysConst()) return;
+				
 				table.getItems().remove(property);
+				table.refresh(); // muss aktualisert werden, da sonst das icon nicht verschwindet
+				
 				SaveData saveData = DataManager.loadData();
 				saveData.getProperties().remove(property.getName());
 				DataManager.saveData(saveData);
+				
+				LOGGER.info(String.format("Property deleted (%s: %s)", property.getName(), property.getValue()));
 			});
 			break;
 
 		case ENTER:
 			item = Optional.ofNullable(table.getSelectionModel().getSelectedItem());
 			item.ifPresent(property -> editItem(property));
+			event.consume();
 			break;
-			
-		case ESCAPE:
-			if(editing) {
-				resetEditArea();
-				event.consume();
-			}
-			break;
-			
+						
 		default:
 			break;
 		}
@@ -149,17 +160,20 @@ public class PropertiesDialogController {
 	private void editItem(Property item) {
 		if(item.isSysConst()) return;
 		
+		Platform.runLater(() -> txtName.requestFocus());
 		editing = true;
 		txtName.setText(item.getName());
 		txtValue.setText(item.getValue());
-		btnAdd.setGraphic(new ImageView(save));
-		btnAdd.setOnAction(getSavePropertyEvent(item));
+		btnCommit.setGraphic(new ImageView(save));
+		btnCommit.setOnAction(getSavePropertyEvent(item));
 	}
 	
 	private void setFocusOnTable() {
-		table.getSelectionModel().select(0);
-		table.getFocusModel().focus(0);
-		table.requestFocus();
+		Platform.runLater(() -> {
+			table.getSelectionModel().select(0);
+			table.getFocusModel().focus(0);
+			table.requestFocus();
+		});
 	}
 	
 	private void addTableData() {
@@ -198,7 +212,7 @@ public class PropertiesDialogController {
         			DataManager.saveData(saveData);
         			table.getItems().add(prop);
         			resetEditArea();
-        			LOGGER.info(String.format("new property added (%s: %s)", prop.getName(), prop.getValue()));
+        			LOGGER.info(String.format("Property added (%s: %s)", prop.getName(), prop.getValue()));
         		} else {
         			String msg = String.format("Property \"%s\" already exists. "
         					+ "Edit the value of the existing property in the table "
@@ -223,16 +237,18 @@ public class PropertiesDialogController {
             	saveData.getProperties().put(old.getName(), old);
             	
             	DataManager.saveData(saveData);
+            	LOGGER.info(String.format("Property modified (%s: %s)", old.getName(), old.getValue()));
             	resetEditArea();
             }
         };
 	}
 	
-	private void resetEditArea() {
+	public void resetEditArea() {
 		editing = false;
 		txtName.clear();
     	txtValue.clear();
-    	btnAdd.setGraphic(new ImageView(add));
-        btnAdd.setOnAction(addPropertyHandler);
+    	btnCommit.setGraphic(new ImageView(add));
+        btnCommit.setOnAction(addPropertyHandler);
+        setFocusOnTable();
 	}
 }

@@ -10,43 +10,46 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8.0.111"
-	xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane minHeight="500.0" minWidth="500.0"
+	xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="de.urkallinger.restclient.controller.PropertiesDialogController">
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
 				<TableView fx:id="table" editable="true" onKeyReleased="#handleTableKeyEvent"
-					onMouseClicked="#handleTableMouseClick">
+					onMouseClicked="#handleTableMouseClick" VBox.vgrow="ALWAYS">
 					<columns>
-						<TableColumn fx:id="colIcon" prefWidth="24.0" />
-						<TableColumn fx:id="colName" prefWidth="75.0" text="Name" />
-						<TableColumn fx:id="colValue" prefWidth="75.0" text="Value" />
+						<TableColumn fx:id="colIcon" />
+						<TableColumn fx:id="colName" text="Name" />
+						<TableColumn fx:id="colValue" text="Value" />
 					</columns>
 					<VBox.margin>
 						<Insets bottom="10.0" />
 					</VBox.margin>
 				</TableView>
-				<HBox alignment="CENTER">
+				<HBox alignment="CENTER" VBox.vgrow="NEVER">
 					<children>
-						<TextField fx:id="txtName" promptText="Name">
+						<TextField fx:id="txtName" promptText="Name" HBox.hgrow="ALWAYS"
+							onKeyReleased="#handleEditKeyInput">
 							<HBox.margin>
 								<Insets right="10.0" />
 							</HBox.margin>
 						</TextField>
-						<TextField fx:id="txtValue" promptText="Value">
+						<TextField fx:id="txtValue" promptText="Value"
+							HBox.hgrow="ALWAYS" onKeyReleased="#handleEditKeyInput">
 							<HBox.margin>
 								<Insets right="10.0" />
 							</HBox.margin>
 						</TextField>
-						<Button fx:id="btnAdd" mnemonicParsing="false" />
+						<Button fx:id="btnCommit" mnemonicParsing="false"
+							onKeyReleased="#handleEditKeyInput" />
 					</children>
 					<VBox.margin>
 						<Insets bottom="40.0" />
 					</VBox.margin>
 				</HBox>
-				<ButtonBar>
+				<ButtonBar VBox.vgrow="NEVER">
 					<buttons>
 						<Button fx:id="btnOk" onAction="#handleOk" text="OK" />
 						<Button fx:id="btnCancel" onAction="#handleCancel" text="Cancel" />

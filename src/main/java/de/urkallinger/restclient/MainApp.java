@@ -17,6 +17,7 @@ import de.urkallinger.restclient.data.RestDataType;
 import de.urkallinger.restclient.data.SaveData;
 import de.urkallinger.restclient.dialogs.PropertiesDialog;
 import de.urkallinger.restclient.dialogs.RestDataDialog;
+import de.urkallinger.restclient.utils.Constants;
 import de.urkallinger.restclient.utils.WebUtils;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -73,6 +74,7 @@ public class MainApp extends Application {
 		
 		scene = new Scene(rootLayout);
 		scene.getStylesheets().add(getClass().getResource("/css/GlobalFontSize.css").toExternalForm());
+		scene.getStylesheets().add(getClass().getResource("/css/Keywords.css").toExternalForm());
 		
 		stage.setScene(scene);
 		stage.show();
@@ -105,7 +107,7 @@ public class MainApp extends Application {
 				break;
 				
 			case C:
-				if(!event.isControlDown() && !event.isShiftDown()) break;
+				if(!event.isControlDown() || !event.isShiftDown()) break;
 				consoleHolder.controller.clear();
 				event.consume();
 				break;
@@ -128,7 +130,7 @@ public class MainApp extends Application {
 				if (result.isPresent() && scene.focusOwnerProperty().get() instanceof TextInputControl) {
 					TextInputControl txt = (TextInputControl) scene.focusOwnerProperty().get();
 					int pos = txt.getCaretPosition();
-					String var = String.format("{%s}", result.get().getName());
+					String var = String.format(Constants.VARIABLE_TEMPLATE, result.get().getName());
 					txt.insertText(pos, var);
 				}
 				break;
