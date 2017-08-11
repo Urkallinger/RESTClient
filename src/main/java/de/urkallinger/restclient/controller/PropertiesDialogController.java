@@ -228,16 +228,22 @@ public class PropertiesDialogController {
             @Override public void handle(ActionEvent e) {
             	SaveData saveData = DataManager.loadData();
             	
+            	// Eindeutiger Name wurde geändert -> Altes Property löschen und neues erstellen
             	if(!txtName.getText().equals(old.getName())) {
             		saveData.getProperties().remove(old.getName());
             	}
             	
+            	String oldProp = String.format("(%s: %s)", old.getName(), old.getValue());
+            	
+            	// Altes Property wiederverwenden, da dieses schon ein binding mit der GUI hat.
             	old.setName(txtName.getText());
             	old.setValue(txtValue.getText());
             	saveData.getProperties().put(old.getName(), old);
             	
+            	String newProp = String.format("(%s: %s)", old.getName(), old.getValue());
+            	
             	DataManager.saveData(saveData);
-            	LOGGER.info(String.format("Property modified (%s: %s)", old.getName(), old.getValue()));
+            	LOGGER.info(String.format("Property modified (%s -> %s)", oldProp, newProp));
             	resetEditArea();
             }
         };
