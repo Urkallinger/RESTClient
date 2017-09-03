@@ -8,62 +8,91 @@
 	<description>RESTClient</description>
 
 	<properties>
-		<log4j.version>2.7</log4j.version>
-		<okhttp.version>3.8.0</okhttp.version>
-		<json.version>20160810</json.version>
-		<apache.commons.lang.version>3.6</apache.commons.lang.version>
-		<jackson.version>2.8.7</jackson.version>
-		<controlsFX.version>8.40.12</controlsFX.version>
+		<!-- ================================= GENERAL ================================== -->
+		<general.main.class>de.urkallinger.restclient.MainApp</general.main.class>
+		<general.jar.file.name>RestClient</general.jar.file.name>
+
+		<!-- =============================== DEPENDENCIES =============================== -->
+		<dependency.log4j.version>2.7</dependency.log4j.version>
+		<dependency.okhttp.version>3.8.0</dependency.okhttp.version>
+		<dependency.json.version>20160810</dependency.json.version>
+		<dependency.apache.commons.lang.version>3.6</dependency.apache.commons.lang.version>
+		<dependency.jackson.version>2.8.7</dependency.jackson.version>
+		<dependency.controlsFX.version>8.40.12</dependency.controlsFX.version>
+
+		<!-- ================================= PLUGINS ================================== -->
+		<plugin.compiler.version>3.6.1</plugin.compiler.version>
+		<plugin.compiler.java.version.source>1.8</plugin.compiler.java.version.source>
+		<plugin.compiler.java.version.target>1.8</plugin.compiler.java.version.target>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>${log4j.version}</version>
+			<version>${dependency.log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>${log4j.version}</version>
+			<version>${dependency.log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>${okhttp.version}</version>
+			<version>${dependency.okhttp.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>${json.version}</version>
+			<version>${dependency.json.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>${apache.commons.lang.version}</version>
+			<version>${dependency.apache.commons.lang.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
+			<version>${dependency.jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.40.12</version>
+			<version>${dependency.controlsFX.version}</version>
 		</dependency>
 	</dependencies>
 
 	<build>
+		<finalName>${general.jar.file.name}</finalName>
+	
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>${plugin.compiler.version}</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${plugin.compiler.java.version.source}</source>
+					<target>${plugin.compiler.java.version.target}</target>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<mainClass>
+								${general.main.class}
+							</mainClass>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
